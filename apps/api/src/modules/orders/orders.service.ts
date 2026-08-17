@@ -2,6 +2,7 @@ import { prisma } from "../../config/prisma";
 import { AppError } from "../../utils/AppError";
 import { getPlatformSettingNumber } from "../../services/platformSettings";
 import { createInvoice, getInvoice, moyasarConfigured } from "../../services/moyasar";
+import { notify, NotificationType } from "../../services/notifications";
 import { env, isProduction } from "../../config/env";
 import type { Order, Prisma } from "@prisma/client";
 import type { z } from "zod";
@@ -194,6 +195,11 @@ export async function verifyAndApplyPayment(orderId: string) {
       where: { orderId },
       data: { status: "CAPTURED", escrowStatus: "HELD" },
     });
+    await notify(order.resellerId, NotificationType.ORDER_STATUS_UPDATE, {
+      title: "New order",
+      body: "You have a new paid order to confirm",
+      data: { orderId, status: "PLACED" },
+    });
     return { applied: true };
   }
 
@@ -233,6 +239,12 @@ export async function devSimulatePayment(buyerId: string, orderId: string) {
     },
   });
 
+  await notify(order.resellerId, NotificationType.ORDER_STATUS_UPDATE, {
+    title: "New order",
+    body: "You have a new paid order to confirm",
+    data: { orderId, status: "PLACED" },
+  });
+
   return { applied: true };
 }
 
@@ -249,6 +261,11 @@ export async function confirmOrder(resellerId: string, orderId: string) {
   requirePaid(order);
 
   const updated = await prisma.order.update({ where: { id: orderId }, data: { status: "CONFIRMED" }, include: ORDER_INCLUDE });
+  await notify(order.buyerId, NotificationType.ORDER_STATUS_UPDATE, {
+    title: "Order confirmed",
+    body: `The reseller confirmed your order for "${order.listing.title}"`,
+    data: { orderId, status: "CONFIRMED" },
+  });
   return toPublicOrder(updated);
 }
 
@@ -267,6 +284,11 @@ export async function shipOrder(resellerId: string, orderId: string, input: Ship
     },
     include: ORDER_INCLUDE,
   });
+  await notify(order.buyerId, NotificationType.ORDER_STATUS_UPDATE, {
+    title: "Order shipped",
+    body: `"${order.listing.title}" has shipped — tracking: ${input.trackingNumber}`,
+    data: { orderId, status: "SHIPPED" },
+  });
   return toPublicOrder(updated);
 }
 
@@ -276,6 +298,11 @@ export async function markDelivered(resellerId: string, orderId: string) {
   if (order.status !== "SHIPPED") throw AppError.badRequest("INVALID_ORDER_STATUS", `Cannot mark an order in status ${order.status} as delivered`);
 
   const updated = await prisma.order.update({ where: { id: orderId }, data: { status: "DELIVERED" }, include: ORDER_INCLUDE });
+  await notify(order.buyerId, NotificationType.ORDER_STATUS_UPDATE, {
+    title: "Order delivered",
+    body: `"${order.listing.title}" was marked as delivered — confirm receipt when you have it`,
+    data: { orderId, status: "DELIVERED" },
+  });
   return toPublicOrder(updated);
 }
 
@@ -292,5 +319,10 @@ export async function confirmReceipt(buyerId: string, orderId: string) {
   ]);
 
   const updated = await prisma.order.findUniqueOrThrow({ where: { id: orderId }, include: ORDER_INCLUDE });
+  await notify(order.resellerId, NotificationType.ORDER_STATUS_UPDATE, {
+    title: "Payment released",
+    body: `The buyer confirmed receipt of "${order.listing.title}" — funds are on their way to you`,
+    data: { orderId, status: "COMPLETED" },
+  });
   return toPublicOrder(updated);
 }

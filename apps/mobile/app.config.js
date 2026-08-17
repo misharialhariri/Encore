@@ -55,6 +55,7 @@ module.exports = {
             "Encore needs access to your photos so you can upload a profile picture and dress listing photos.",
         },
       ],
+      "expo-notifications",
     ],
   },
 };

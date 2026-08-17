@@ -47,7 +47,31 @@
     "finish": "Finish setup"
   },
   "sell": { "title": "Sell" },
-  "chat": { "title": "Chat", "comingSoon": "In-app chat is coming in Phase 5" },
+  "chat": {
+    "title": "Chat",
+    "empty": "No conversations yet",
+    "photoPreview": "📷 Photo",
+    "offerPreview": "Sent an offer",
+    "messagePlaceholder": "Type a message…",
+    "viewOffer": "View offer",
+    "blockUserTitle": "Block this user?",
+    "blockUserConfirm": "They won't be able to message you anymore.",
+    "block": "Block"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "preferencesTitle": "Notification settings",
+    "empty": "No notifications yet",
+    "markAllRead": "Mark all read",
+    "clearAll": "Clear all",
+    "typeNewMessage": "New messages",
+    "typeOfferReceived": "Offers received",
+    "typeOfferAccepted": "Offer accepted",
+    "typeOfferDeclined": "Offer declined",
+    "typeOfferCountered": "Offer countered",
+    "typeOrderStatusUpdate": "Order updates",
+    "typePriceDrop": "Price drops on saved items"
+  },
   "profile": {
     "title": "Profile",
     "memberSince": "Member since {{date}}",

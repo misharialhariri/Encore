@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { secureStorage, STORAGE_KEYS } from "../utils/secureStorage";
+import { unregisterCurrentDevice } from "../utils/pushNotifications";
 
 export interface AuthUser {
   id: string;
@@ -92,6 +93,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
+    await unregisterCurrentDevice();
     await Promise.all([
       secureStorage.removeItem(STORAGE_KEYS.accessToken),
       secureStorage.removeItem(STORAGE_KEYS.refreshToken),

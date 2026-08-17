@@ -3,6 +3,7 @@ import { AppError } from "../../utils/AppError";
 import { containsBannedKeyword } from "../../services/moderation";
 import { getPlatformSettingNumber } from "../../services/platformSettings";
 import { createPresignedUpload } from "../../services/s3";
+import { notify, NotificationType } from "../../services/notifications";
 import type { Listing, Prisma } from "@prisma/client";
 import type { z } from "zod";
 import type { createListingSchema, updateListingSchema } from "./listings.schemas";
@@ -233,7 +234,24 @@ export async function updateListing(listingId: string, resellerId: string, input
     include: LISTING_INCLUDE,
   });
 
+  if (input.askingPrice !== undefined && input.askingPrice < existing.askingPrice.toNumber()) {
+    await notifyWishlistersOfPriceDrop(listing.id, listing.title, input.askingPrice);
+  }
+
   return toPublicListing(listing);
+}
+
+async function notifyWishlistersOfPriceDrop(listingId: string, title: string, newPrice: number) {
+  const wishlisters = await prisma.wishlist.findMany({ where: { listingId }, select: { userId: true } });
+  await Promise.all(
+    wishlisters.map((w) =>
+      notify(w.userId, NotificationType.PRICE_DROP, {
+        title: "Price drop on a saved item",
+        body: `"${title}" is now ${newPrice} SAR`,
+        data: { listingId },
+      })
+    )
+  );
 }
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {

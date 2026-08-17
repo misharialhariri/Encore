@@ -47,7 +47,31 @@
     "finish": "إنهاء الإعداد"
   },
   "sell": { "title": "بيع" },
-  "chat": { "title": "الدردشة", "comingSoon": "الدردشة داخل التطبيق قادمة في المرحلة الخامسة" },
+  "chat": {
+    "title": "الدردشة",
+    "empty": "لا توجد محادثات بعد",
+    "photoPreview": "📷 صورة",
+    "offerPreview": "تم إرسال عرض",
+    "messagePlaceholder": "اكتب رسالة…",
+    "viewOffer": "عرض العرض",
+    "blockUserTitle": "حظر هذا المستخدم؟",
+    "blockUserConfirm": "لن يتمكن من مراسلتك بعد الآن.",
+    "block": "حظر"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "preferencesTitle": "إعدادات الإشعارات",
+    "empty": "لا توجد إشعارات بعد",
+    "markAllRead": "تعليم الكل كمقروء",
+    "clearAll": "مسح الكل",
+    "typeNewMessage": "الرسائل الجديدة",
+    "typeOfferReceived": "العروض المستلمة",
+    "typeOfferAccepted": "قبول العرض",
+    "typeOfferDeclined": "رفض العرض",
+    "typeOfferCountered": "المقابل على العرض",
+    "typeOrderStatusUpdate": "تحديثات الطلب",
+    "typePriceDrop": "انخفاض سعر العناصر المحفوظة"
+  },
   "profile": {
     "title": "الملف الشخصي",
     "memberSince": "عضو منذ {{date}}",

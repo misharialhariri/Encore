@@ -29,6 +29,11 @@ const envSchema = z.object({
 
   MOYASAR_SECRET_KEY: z.string().default(""),
   API_PUBLIC_URL: z.string().default("http://localhost:4000"),
+
+  // Firebase Cloud Messaging — service account credentials as a raw JSON
+  // string (the whole downloaded key file, one line). Without it, push
+  // sends fall back to a console log so notification logic stays testable.
+  FCM_SERVICE_ACCOUNT_JSON: z.string().default(""),
 });
 
 const parsed = envSchema.safeParse(process.env);

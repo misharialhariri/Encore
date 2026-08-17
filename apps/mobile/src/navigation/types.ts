@@ -26,6 +26,7 @@ export type SharedListingRoutes = {
   Checkout: { listingId: string; offerId?: string };
   OrderConfirmation: { orderId: string };
   OrderDetail: { orderId: string };
+  Conversation: { conversationId: string };
 };
 
 export type SellStackParamList = SharedListingRoutes & {
@@ -49,4 +50,10 @@ export type ProfileStackParamList = SharedListingRoutes & {
   Wishlist: undefined;
   MyOffers: undefined;
   MyOrders: undefined;
+  Notifications: undefined;
+  NotificationPreferences: undefined;
+};
+
+export type ChatStackParamList = SharedListingRoutes & {
+  ChatList: undefined;
 };

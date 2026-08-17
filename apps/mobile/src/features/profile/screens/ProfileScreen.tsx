@@ -9,6 +9,8 @@ import { ScreenContainer } from "../../../components/ScreenContainer";
 import { Button } from "../../../components/Button";
 import { useAuthStore } from "../../../store/authStore";
 import * as usersApi from "../../../api/users";
+import * as notificationsApi from "../../../api/notifications";
+import { useFocusEffect } from "@react-navigation/native";
 import { applyLayoutDirection, type SupportedLanguage } from "../../../localization/i18n";
 import { colors, radius, spacing } from "../../../theme/colors";
 
@@ -21,6 +23,13 @@ export function ProfileScreen({ navigation }: Props) {
   const setBiometricEnabled = useAuthStore((s) => s.setBiometricEnabled);
   const signOut = useAuthStore((s) => s.signOut);
   const [busy, setBusy] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      notificationsApi.getUnreadCount().then((count) => setUnreadCount(count));
+    }, [])
+  );
 
   async function handleToggleBiometric(value: boolean) {
     if (value) {
@@ -94,6 +103,18 @@ export function ProfileScreen({ navigation }: Props) {
           <Text style={styles.rowLabel}>{t("orders.myOrdersTitle")}</Text>
           <Ionicons name="chevron-forward" size={18} color={colors.muted} />
         </Pressable>
+        <View style={styles.divider} />
+        <Pressable style={styles.row} onPress={() => navigation.navigate("Notifications")}>
+          <View style={styles.rowLabelWithBadge}>
+            <Text style={styles.rowLabel}>{t("notifications.title")}</Text>
+            {unreadCount > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationBadgeText}>{unreadCount}</Text>
+              </View>
+            )}
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+        </Pressable>
       </View>
 
       <View style={styles.section}>
@@ -146,6 +167,17 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: spacing.xs },
   divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.xs },
   rowLabel: { fontSize: 15, color: colors.ink },
+  rowLabelWithBadge: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+  notificationBadge: {
+    backgroundColor: colors.accent,
+    borderRadius: radius.pill,
+    minWidth: 20,
+    height: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 6,
+  },
+  notificationBadgeText: { color: colors.white, fontSize: 11, fontWeight: "700" },
   langRow: { flexDirection: "row", gap: spacing.sm },
   langButton: { flex: 1 },
   logout: { marginTop: spacing.lg, marginBottom: spacing.xl },

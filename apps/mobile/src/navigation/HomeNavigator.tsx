@@ -9,6 +9,7 @@ import { OfferThreadScreen } from "../features/offers/screens/OfferThreadScreen"
 import { CheckoutScreen } from "../features/checkout/screens/CheckoutScreen";
 import { OrderConfirmationScreen } from "../features/checkout/screens/OrderConfirmationScreen";
 import { OrderDetailScreen } from "../features/orders/screens/OrderDetailScreen";
+import { ConversationScreen } from "../features/chat/screens/ConversationScreen";
 import { colors } from "../theme/colors";
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -25,6 +26,7 @@ export function HomeNavigator() {
       <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: t("checkout.title") }} />
       <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} options={{ headerShown: false }} />
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: t("orders.orderDetailTitle") }} />
+      <Stack.Screen name="Conversation" component={ConversationScreen} options={{ title: "" }} />
     </Stack.Navigator>
   );
 }

@@ -13,6 +13,7 @@ import { OrderConfirmationScreen } from "../features/checkout/screens/OrderConfi
 import { OrderDetailScreen } from "../features/orders/screens/OrderDetailScreen";
 import { SalesScreen } from "../features/orders/screens/SalesScreen";
 import { PayoutsScreen } from "../features/payouts/screens/PayoutsScreen";
+import { ConversationScreen } from "../features/chat/screens/ConversationScreen";
 import { colors } from "../theme/colors";
 
 const Stack = createNativeStackNavigator<SellStackParamList>();
@@ -37,6 +38,7 @@ export function SellNavigator() {
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: t("orders.orderDetailTitle") }} />
       <Stack.Screen name="Sales" component={SalesScreen} options={{ title: t("orders.salesTitle") }} />
       <Stack.Screen name="Payouts" component={PayoutsScreen} options={{ title: t("payouts.title") }} />
+      <Stack.Screen name="Conversation" component={ConversationScreen} options={{ title: "" }} />
     </Stack.Navigator>
   );
 }

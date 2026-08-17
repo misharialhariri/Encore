@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma";
 import { AppError } from "../../utils/AppError";
+import { notify, NotificationType } from "../../services/notifications";
 import type { Offer } from "@prisma/client";
 
 const OFFER_TTL_MS = 24 * 60 * 60 * 1000;
@@ -121,6 +122,12 @@ export async function createOffer(buyerId: string, listingId: string, offerPrice
     include: OFFER_INCLUDE,
   });
 
+  await notify(listing.resellerId, NotificationType.OFFER_RECEIVED, {
+    title: "New offer received",
+    body: `${offerPrice} SAR on "${listing.title}"`,
+    data: { offerId: offer.id, listingId: listing.id },
+  });
+
   return toPublicOffer(offer as OfferWithListing);
 }
 
@@ -161,17 +168,28 @@ export async function respondToOffer(userId: string, offerId: string, action: Of
   const depth = await computeDepth(offer);
   const authoredByBuyer = depth % 2 === 0;
   const recipientId = authoredByBuyer ? offer.listing.resellerId : offer.buyerId;
+  const authorId = authoredByBuyer ? offer.buyerId : offer.listing.resellerId;
   if (userId !== recipientId) {
     throw AppError.forbidden("NOT_YOUR_TURN", "It's not your turn to respond to this offer");
   }
 
   if (action === "accept") {
     const updated = await prisma.offer.update({ where: { id: offer.id }, data: { status: "ACCEPTED" }, include: OFFER_INCLUDE });
+    await notify(authorId, NotificationType.OFFER_ACCEPTED, {
+      title: "Offer accepted",
+      body: `Your offer of ${offer.offerPrice.toNumber()} SAR on "${offer.listing.title}" was accepted`,
+      data: { offerId: offer.id, listingId: offer.listingId },
+    });
     return toPublicOffer(updated as OfferWithListing);
   }
 
   if (action === "decline") {
     const updated = await prisma.offer.update({ where: { id: offer.id }, data: { status: "DECLINED" }, include: OFFER_INCLUDE });
+    await notify(authorId, NotificationType.OFFER_DECLINED, {
+      title: "Offer declined",
+      body: `Your offer of ${offer.offerPrice.toNumber()} SAR on "${offer.listing.title}" was declined`,
+      data: { offerId: offer.id, listingId: offer.listingId },
+    });
     return toPublicOffer(updated as OfferWithListing);
   }
 
@@ -193,6 +211,12 @@ export async function respondToOffer(userId: string, offerId: string, action: Of
       include: OFFER_INCLUDE,
     }),
   ]);
+
+  await notify(authorId, NotificationType.OFFER_COUNTERED, {
+    title: "Counter offer received",
+    body: `${counterPrice} SAR on "${offer.listing.title}"`,
+    data: { offerId: (counter as OfferWithListing).id, listingId: offer.listingId },
+  });
 
   return toPublicOffer(counter as OfferWithListing);
 }

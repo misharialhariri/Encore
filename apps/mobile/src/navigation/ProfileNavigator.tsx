@@ -12,6 +12,9 @@ import { CheckoutScreen } from "../features/checkout/screens/CheckoutScreen";
 import { OrderConfirmationScreen } from "../features/checkout/screens/OrderConfirmationScreen";
 import { OrderDetailScreen } from "../features/orders/screens/OrderDetailScreen";
 import { MyOrdersScreen } from "../features/orders/screens/MyOrdersScreen";
+import { ConversationScreen } from "../features/chat/screens/ConversationScreen";
+import { NotificationCenterScreen } from "../features/notifications/screens/NotificationCenterScreen";
+import { NotificationPreferencesScreen } from "../features/notifications/screens/NotificationPreferencesScreen";
 import { colors } from "../theme/colors";
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
@@ -31,6 +34,13 @@ export function ProfileNavigator() {
       <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} options={{ headerShown: false }} />
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: t("orders.orderDetailTitle") }} />
       <Stack.Screen name="MyOrders" component={MyOrdersScreen} options={{ title: t("orders.myOrdersTitle") }} />
+      <Stack.Screen name="Conversation" component={ConversationScreen} options={{ title: "" }} />
+      <Stack.Screen name="Notifications" component={NotificationCenterScreen} options={{ title: t("notifications.title") }} />
+      <Stack.Screen
+        name="NotificationPreferences"
+        component={NotificationPreferencesScreen}
+        options={{ title: t("notifications.preferencesTitle") }}
+      />
     </Stack.Navigator>
   );
 }

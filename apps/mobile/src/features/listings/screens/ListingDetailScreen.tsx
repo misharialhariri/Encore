@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Alert, FlatList, Image, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -12,6 +12,7 @@ import { useAuthStore } from "../../../store/authStore";
 import * as listingsApi from "../../../api/listings";
 import * as catalogApi from "../../../api/catalog";
 import * as wishlistApi from "../../../api/wishlist";
+import * as chatApi from "../../../api/chat";
 import type { Listing } from "../../../api/listings";
 import type { ListingCard } from "../../../api/search";
 import { colors, radius, spacing } from "../../../theme/colors";
@@ -64,8 +65,9 @@ export function ListingDetailScreen({ route, navigation }: Props) {
     }
   }
 
-  function comingSoon(feature: string) {
-    Alert.alert(feature, t("listingDetail.comingSoon"));
+  async function handleChatWithReseller() {
+    const conversation = await chatApi.startConversation(listing!.id);
+    navigation.navigate("Conversation", { conversationId: conversation.id });
   }
 
   return (
@@ -166,11 +168,7 @@ export function ListingDetailScreen({ route, navigation }: Props) {
       )}
 
       {!isOwner && (
-        <Button
-          label={t("listingDetail.chatWithReseller")}
-          variant="ghost"
-          onPress={() => comingSoon(t("listingDetail.chatWithReseller"))}
-        />
+        <Button label={t("listingDetail.chatWithReseller")} variant="ghost" onPress={handleChatWithReseller} />
       )}
 
       {listing.similarItems && listing.similarItems.length > 0 && (

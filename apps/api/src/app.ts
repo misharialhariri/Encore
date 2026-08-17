@@ -22,6 +22,9 @@ import { offersRouter } from "./modules/offers/offers.routes";
 import { addressesRouter } from "./modules/addresses/addresses.routes";
 import { ordersRouter } from "./modules/orders/orders.routes";
 import { payoutsRouter } from "./modules/payouts/payouts.routes";
+import { devicesRouter } from "./modules/devices/devices.routes";
+import { notificationsRouter } from "./modules/notifications/notifications.routes";
+import { chatRouter } from "./modules/chat/chat.routes";
 
 export function createApp() {
   const app = express();
@@ -54,6 +57,9 @@ export function createApp() {
   app.use("/api/addresses", addressesRouter);
   app.use("/api/orders", ordersRouter);
   app.use("/api/payouts", payoutsRouter);
+  app.use("/api/devices", devicesRouter);
+  app.use("/api/notifications", notificationsRouter);
+  app.use("/api/chat", chatRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
