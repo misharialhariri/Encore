@@ -1,44 +1,38 @@
-import React, { useEffect, useState } from "react";
-import { Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Image, Pressable, StyleSheet, Text } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useTranslation } from "react-i18next";
 import { ScreenContainer } from "../../../components/ScreenContainer";
 import { TextField } from "../../../components/TextField";
 import { Button } from "../../../components/Button";
+import { ChipGroup } from "../../../components/ChipGroup";
+import { CitySelectField } from "../../../components/CitySelectField";
 import { useAuthStore } from "../../../store/authStore";
-import { getRegions, type Region } from "../../../api/regions";
+import type { City } from "../../../api/regions";
 import * as usersApi from "../../../api/users";
 import { extractApiErrorMessage } from "../../../api/client";
-import { colors, radius, spacing } from "../../../theme/colors";
+import { colors, spacing } from "../../../theme/colors";
 
 const USER_TYPES = [
-  { value: "BUYER" as const, labelKey: "onboarding.userTypeBuyer" },
-  { value: "RESELLER" as const, labelKey: "onboarding.userTypeReseller" },
-  { value: "BOTH" as const, labelKey: "onboarding.userTypeBoth" },
-];
+  { value: "BUYER", labelKey: "onboarding.userTypeBuyer" },
+  { value: "RESELLER", labelKey: "onboarding.userTypeReseller" },
+  { value: "BOTH", labelKey: "onboarding.userTypeBoth" },
+] as const;
 
 export function ProfileSetupScreen() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const updateUser = useAuthStore((s) => s.updateUser);
 
-  const [regions, setRegions] = useState<Region[]>([]);
   const [displayName, setDisplayName] = useState(user?.displayName ?? "");
-  const [selectedCityId, setSelectedCityId] = useState<string | null>(user?.city?.id ?? null);
+  const [selectedCity, setSelectedCity] = useState<City | null>(
+    user?.city ? { id: user.city.id, nameEn: user.city.nameEn, nameAr: user.city.nameAr, regionId: "" } : null
+  );
   const [userType, setUserType] = useState<"BUYER" | "RESELLER" | "BOTH" | null>(user?.userType ?? null);
   const [photoUri, setPhotoUri] = useState<string | null>(user?.profilePhotoUrl ?? null);
-  const [cityPickerOpen, setCityPickerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
-
-  useEffect(() => {
-    getRegions()
-      .then(setRegions)
-      .catch(() => setError("Could not load regions"));
-  }, []);
-
-  const selectedCity = regions.flatMap((r) => r.cities).find((c) => c.id === selectedCityId) ?? null;
 
   async function handlePickPhoto() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -86,7 +80,7 @@ export function ProfileSetupScreen() {
     try {
       const updated = await usersApi.updateMe({
         displayName: displayName.trim(),
-        cityId: selectedCityId ?? undefined,
+        cityId: selectedCity?.id,
         userType,
         profilePhotoUrl: photoUri && photoUri.startsWith("http") ? photoUri : undefined,
       });
@@ -118,65 +112,24 @@ export function ProfileSetupScreen() {
         onChangeText={setDisplayName}
       />
 
-      <View style={styles.field}>
-        <Text style={styles.fieldLabel}>{t("onboarding.cityLabel")}</Text>
-        <Pressable style={styles.selector} onPress={() => setCityPickerOpen(true)}>
-          <Text style={selectedCity ? styles.selectorValue : styles.selectorPlaceholder}>
-            {selectedCity?.nameEn ?? t("onboarding.selectCity")}
-          </Text>
-        </Pressable>
-      </View>
+      <CitySelectField
+        label={t("onboarding.cityLabel")}
+        placeholder={t("onboarding.selectCity")}
+        value={selectedCity}
+        onChange={setSelectedCity}
+        cancelLabel={t("common.cancel")}
+      />
 
-      <View style={styles.field}>
-        <Text style={styles.fieldLabel}>{t("onboarding.userTypeLabel")}</Text>
-        <View style={styles.typeRow}>
-          {USER_TYPES.map((type) => (
-            <Pressable
-              key={type.value}
-              style={[styles.typeChip, userType === type.value && styles.typeChipActive]}
-              onPress={() => setUserType(type.value)}
-            >
-              <Text style={[styles.typeChipLabel, userType === type.value && styles.typeChipLabelActive]}>
-                {t(type.labelKey)}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
+      <Text style={styles.fieldLabel}>{t("onboarding.userTypeLabel")}</Text>
+      <ChipGroup
+        options={USER_TYPES.map((type) => ({ value: type.value, label: t(type.labelKey) }))}
+        selected={userType ? [userType] : []}
+        onChange={([value]) => setUserType((value as typeof userType) ?? null)}
+      />
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <Button label={t("onboarding.finish")} onPress={handleFinish} loading={saving} style={styles.finishButton} />
-
-      <Modal visible={cityPickerOpen} animationType="slide" transparent>
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>{t("onboarding.selectCity")}</Text>
-            {regions.map((region) => (
-              <View key={region.id} style={styles.regionGroup}>
-                <Text style={styles.regionLabel}>{region.nameEn}</Text>
-                <View style={styles.cityChips}>
-                  {region.cities.map((city) => (
-                    <Pressable
-                      key={city.id}
-                      style={[styles.typeChip, selectedCityId === city.id && styles.typeChipActive]}
-                      onPress={() => {
-                        setSelectedCityId(city.id);
-                        setCityPickerOpen(false);
-                      }}
-                    >
-                      <Text style={[styles.typeChipLabel, selectedCityId === city.id && styles.typeChipLabelActive]}>
-                        {city.nameEn}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-            ))}
-            <Button label={t("common.cancel")} variant="ghost" onPress={() => setCityPickerOpen(false)} />
-          </View>
-        </View>
-      </Modal>
     </ScreenContainer>
   );
 }
@@ -199,43 +152,7 @@ const styles = StyleSheet.create({
   },
   photo: { width: 96, height: 96 },
   photoPlaceholder: { fontSize: 12, color: colors.muted, textAlign: "center", paddingHorizontal: spacing.xs },
-  field: { marginBottom: spacing.md },
   fieldLabel: { fontSize: 13, fontWeight: "600", color: colors.inkSoft, marginBottom: spacing.xs },
-  selector: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    minHeight: 52,
-    justifyContent: "center",
-    paddingHorizontal: spacing.md,
-  },
-  selectorValue: { color: colors.ink, fontSize: 16 },
-  selectorPlaceholder: { color: colors.muted, fontSize: 16 },
-  typeRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  typeChip: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.pill,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surface,
-  },
-  typeChipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-  typeChipLabel: { color: colors.ink, fontSize: 14 },
-  typeChipLabelActive: { color: colors.white, fontWeight: "600" },
-  error: { color: colors.danger, fontSize: 13, marginBottom: spacing.sm },
+  error: { color: colors.danger, fontSize: 13, marginTop: spacing.md, marginBottom: spacing.sm },
   finishButton: { marginTop: spacing.md, marginBottom: spacing.xl },
-  modalBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" },
-  modalSheet: {
-    backgroundColor: colors.paper,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    padding: spacing.lg,
-    maxHeight: "75%",
-  },
-  modalTitle: { fontSize: 18, fontWeight: "700", color: colors.ink, marginBottom: spacing.md },
-  regionGroup: { marginBottom: spacing.md },
-  regionLabel: { fontSize: 13, fontWeight: "600", color: colors.muted, marginBottom: spacing.xs },
-  cityChips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
 });

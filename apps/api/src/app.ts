@@ -9,6 +9,11 @@ import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { authRouter } from "./modules/auth/auth.routes";
 import { usersRouter } from "./modules/users/users.routes";
 import { regionsRouter } from "./modules/users/regions.routes";
+import { brandsRouter } from "./modules/catalog/brands.routes";
+import { styleTagsRouter } from "./modules/catalog/styleTags.routes";
+import { sizeChartRouter } from "./modules/catalog/sizeChart.routes";
+import { listingsRouter } from "./modules/listings/listings.routes";
+import { resellersRouter } from "./modules/resellers/resellers.routes";
 
 export function createApp() {
   const app = express();
@@ -28,6 +33,11 @@ export function createApp() {
   app.use("/api/auth", authRouter);
   app.use("/api/users", usersRouter);
   app.use("/api/regions", regionsRouter);
+  app.use("/api/brands", brandsRouter);
+  app.use("/api/style-tags", styleTagsRouter);
+  app.use("/api/size-chart", sizeChartRouter);
+  app.use("/api/listings", listingsRouter);
+  app.use("/api/resellers", resellersRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

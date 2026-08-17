@@ -64,6 +64,11 @@ apiClient.interceptors.response.use(
   }
 );
 
+export async function uploadToPresignedUrl(uploadUrl: string, fileUri: string, contentType: string): Promise<void> {
+  const fileBlob = await (await fetch(fileUri)).blob();
+  await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": contentType }, body: fileBlob });
+}
+
 export function extractApiErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     const apiError = (error.response?.data as { error?: { message?: string } } | undefined)?.error;

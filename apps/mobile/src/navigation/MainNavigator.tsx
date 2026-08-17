@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { MainTabParamList } from "./types";
 import { HomeScreen } from "../features/home/screens/HomeScreen";
 import { SearchScreen } from "../features/search/screens/SearchScreen";
-import { SellScreen } from "../features/listings/screens/SellScreen";
+import { SellNavigator } from "./SellNavigator";
 import { ChatListScreen } from "../features/chat/screens/ChatListScreen";
 import { ProfileScreen } from "../features/profile/screens/ProfileScreen";
 import { colors } from "../theme/colors";
@@ -37,7 +37,7 @@ export function MainNavigator() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: t("home.title") }} />
       <Tab.Screen name="Search" component={SearchScreen} options={{ title: t("search.title") }} />
-      <Tab.Screen name="Sell" component={SellScreen} options={{ title: t("sell.title") }} />
+      <Tab.Screen name="Sell" component={SellNavigator} options={{ title: t("sell.title") }} />
       <Tab.Screen name="Chat" component={ChatListScreen} options={{ title: t("chat.title") }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: t("profile.title") }} />
     </Tab.Navigator>

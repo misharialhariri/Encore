@@ -14,3 +14,10 @@ export type MainTabParamList = {
   Chat: undefined;
   Profile: undefined;
 };
+
+export type SellStackParamList = {
+  Dashboard: undefined;
+  ListingForm: { listingId?: string } | undefined;
+  ListingPreview: { listingId: string };
+  ResellerProfile: { resellerId: string };
+};

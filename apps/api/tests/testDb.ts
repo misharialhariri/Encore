@@ -1,9 +1,13 @@
 import { prisma } from "../src/config/prisma";
 
-// Order matters: children before parents to satisfy FK constraints. Phase 1
-// only exercises identity + reference tables, so that's all we truncate.
+// Order matters: children before parents to satisfy FK constraints.
 export async function resetDb() {
   await prisma.otpVerification.deleteMany();
+  await prisma.listing.deleteMany(); // cascades listing_images + listing_style_tags
+  await prisma.styleTag.deleteMany();
+  await prisma.brand.deleteMany();
+  await prisma.bannedKeyword.deleteMany();
+  await prisma.platformSetting.deleteMany();
   await prisma.user.deleteMany();
   await prisma.city.deleteMany();
   await prisma.region.deleteMany();

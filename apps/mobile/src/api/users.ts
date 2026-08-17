@@ -1,4 +1,4 @@
-import { apiClient } from "./client";
+import { apiClient, uploadToPresignedUrl } from "./client";
 import type { AuthUser } from "../store/authStore";
 
 export async function getMe(): Promise<AuthUser> {
@@ -27,7 +27,4 @@ export async function getProfilePhotoUploadUrl(
   return data;
 }
 
-export async function uploadProfilePhoto(uploadUrl: string, fileUri: string, contentType: string): Promise<void> {
-  const fileBlob = await (await fetch(fileUri)).blob();
-  await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": contentType }, body: fileBlob });
-}
+export const uploadProfilePhoto = uploadToPresignedUrl;
