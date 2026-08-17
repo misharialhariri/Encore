@@ -1,0 +1,44 @@
+{
+  "name": "@encore/mobile",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@expo/vector-icons": "^15.1.1",
+    "@react-native-async-storage/async-storage": "^3.1.1",
+    "@react-native-picker/picker": "^2.11.4",
+    "@react-navigation/bottom-tabs": "^7.18.16",
+    "@react-navigation/native": "^7.3.16",
+    "@react-navigation/native-stack": "^7.18.8",
+    "axios": "^1.19.0",
+    "expo": "~57.0.14",
+    "expo-apple-authentication": "^57.0.1",
+    "expo-auth-session": "^57.0.7",
+    "expo-crypto": "^57.0.1",
+    "expo-image": "^57.0.3",
+    "expo-image-picker": "^57.0.11",
+    "expo-local-authentication": "^57.0.2",
+    "expo-localization": "^57.0.1",
+    "expo-secure-store": "^57.0.1",
+    "expo-status-bar": "~57.0.1",
+    "expo-web-browser": "^57.0.2",
+    "i18next": "^26.3.6",
+    "react": "19.2.3",
+    "react-i18next": "^17.0.11",
+    "react-native": "0.86.2",
+    "react-native-gesture-handler": "^3.2.1",
+    "react-native-safe-area-context": "^5.9.0",
+    "react-native-screens": "^4.27.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "private": true
+}

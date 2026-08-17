@@ -1,0 +1,62 @@
+{
+  "common": {
+    "continue": "Continue",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "resend": "Resend code",
+    "or": "or",
+    "skip": "Skip for now"
+  },
+  "auth": {
+    "welcomeTitle": "Welcome to Encore",
+    "welcomeSubtitle": "Guest wedding dresses, resold — buy and sell in Saudi Arabia",
+    "phoneLabel": "Mobile number",
+    "phonePlaceholder": "5X XXX XXXX",
+    "sendCode": "Send code",
+    "invalidPhone": "Enter a valid Saudi mobile number",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithApple": "Continue with Apple",
+    "otpTitle": "Enter the code",
+    "otpSubtitle": "We sent a 6-digit code to {{phone}}",
+    "otpExpiresIn": "Code expires in {{minutes}}:{{seconds}}",
+    "otpExpired": "Code expired",
+    "verify": "Verify",
+    "resendIn": "Resend in {{seconds}}s",
+    "attemptsRemaining": "{{count}} attempt remaining",
+    "attemptsRemaining_other": "{{count}} attempts remaining",
+    "biometricPromptTitle": "Unlock Encore",
+    "biometricUnlock": "Unlock with Face ID",
+    "biometricUseCodeInstead": "Use phone number instead",
+    "enableBiometric": "Enable Face ID / Touch ID",
+    "enableBiometricSubtitle": "Sign in faster next time without a code"
+  },
+  "onboarding": {
+    "title": "Set up your profile",
+    "subtitle": "This is what buyers and resellers will see",
+    "addPhoto": "Add a photo",
+    "displayNameLabel": "Display name",
+    "displayNamePlaceholder": "How should we call you?",
+    "regionLabel": "Region",
+    "cityLabel": "City",
+    "selectCity": "Select your city",
+    "userTypeLabel": "I want to",
+    "userTypeBuyer": "Buy dresses",
+    "userTypeReseller": "Sell dresses",
+    "userTypeBoth": "Both buy and sell",
+    "finish": "Finish setup"
+  },
+  "home": {
+    "title": "Home",
+    "comingSoon": "Your personalized feed is coming in Phase 3"
+  },
+  "search": { "title": "Search", "comingSoon": "Search and filters are coming in Phase 3" },
+  "sell": { "title": "Sell", "comingSoon": "Listing creation is coming in Phase 2" },
+  "chat": { "title": "Chat", "comingSoon": "In-app chat is coming in Phase 5" },
+  "profile": {
+    "title": "Profile",
+    "memberSince": "Member since {{date}}",
+    "logout": "Log out",
+    "language": "Language"
+  }
+}

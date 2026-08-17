@@ -1,0 +1,21 @@
+{
+  "name": "encore",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Encore — marketplace for reselling women's guest wedding attire in Saudi Arabia",
+  "workspaces": [
+    "apps/api",
+    "apps/mobile",
+    "apps/admin",
+    "packages/*"
+  ],
+  "scripts": {
+    "api:dev": "npm run dev --workspace apps/api",
+    "api:build": "npm run build --workspace apps/api",
+    "api:test": "npm run test --workspace apps/api",
+    "mobile:start": "npm run start --workspace apps/mobile"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  }
+}

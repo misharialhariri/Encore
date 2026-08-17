@@ -1,0 +1,683 @@
+// Encore — database schema
+// Matches the ERD approved in the Phase 1 foundation plan.
+// Phase 1 builds out Identity & Trust + reference tables in full and wires
+// the Auth/Profile API against them. Catalog/Commerce/Communication/Admin
+// tables are modeled now so later phases only add endpoints, not migrations.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────────────────
+
+enum UserType {
+  BUYER
+  RESELLER
+  BOTH
+}
+
+enum AuthProvider {
+  PHONE
+  GOOGLE
+  APPLE
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum VerificationDocType {
+  NATIONAL_ID
+  IQAMA
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DevicePlatform {
+  IOS
+  ANDROID
+}
+
+enum ListingCondition {
+  NEW_WITH_TAGS
+  LIKE_NEW
+  GOOD
+  FAIR
+}
+
+enum OccasionType {
+  WEDDING_GUEST
+  FORMAL
+  SEMI_FORMAL
+  COCKTAIL
+}
+
+enum ListingStatus {
+  PENDING_REVIEW
+  ACTIVE
+  PAUSED
+  SOLD
+  REMOVED
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COUNTERED
+  EXPIRED
+}
+
+enum DeliveryMethod {
+  SHIPPING
+  MEETUP
+}
+
+enum OrderStatus {
+  PLACED
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+enum PaymentProvider {
+  MOYASAR
+}
+
+enum PaymentMethod {
+  CARD
+  APPLE_PAY
+  STC_PAY
+}
+
+enum PaymentStatus {
+  AUTHORIZED
+  CAPTURED
+  REFUNDED
+  FAILED
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  OFFER_CARD
+}
+
+enum ReportTargetType {
+  LISTING
+  USER
+}
+
+enum ReportReason {
+  WRONG_CATEGORY
+  FAKE_PHOTOS
+  PROHIBITED_ITEM
+  SCAM
+  HARASSMENT
+  FAKE_ACCOUNT
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWED
+  ACTIONED
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  OPS
+  FINANCE
+  SUPPORT
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Identity & trust
+// ─────────────────────────────────────────────────────────────────────────
+
+model User {
+  id               String       @id @default(uuid())
+  phoneNumber      String?      @unique @map("phone_number")
+  email            String?      @unique
+  displayName      String?      @map("display_name")
+  profilePhotoUrl  String?      @map("profile_photo_url")
+  cityId           String?      @map("city_id")
+  city             City?        @relation(fields: [cityId], references: [id])
+  userType         UserType?    @map("user_type")
+  authProvider     AuthProvider @default(PHONE) @map("auth_provider")
+  googleSub        String?      @unique @map("google_sub")
+  appleSub         String?      @unique @map("apple_sub")
+  isVerified       Boolean      @default(false) @map("is_verified")
+  status           UserStatus   @default(ACTIVE)
+  languagePref     String       @default("ar") @map("language_pref")
+  biometricEnabled Boolean      @default(false) @map("biometric_enabled")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  verificationRequests VerificationRequest[]
+  bankAccount          ResellerBankAccount?
+  addresses             Address[]
+  devices               Device[]
+  wishlists              Wishlist[]
+  savedSearches          SavedSearch[]
+  listings                Listing[]              @relation("ResellerListings")
+  offersMade              Offer[]                @relation("BuyerOffers")
+  ordersAsBuyer           Order[]                @relation("BuyerOrders")
+  ordersAsReseller        Order[]                @relation("ResellerOrders")
+  reviewsWritten           Review[]               @relation("ReviewAuthor")
+  reviewsAboutMe           Review[]               @relation("ReviewSubject")
+  payouts                  Payout[]
+  conversationsAsBuyer     Conversation[]         @relation("BuyerConversations")
+  conversationsAsReseller  Conversation[]         @relation("ResellerConversations")
+  messagesSent             Message[]
+  blockedByMe              BlockedUser[]          @relation("Blocker")
+  blockedMe                BlockedUser[]          @relation("Blocked")
+  notifications            Notification[]
+  notificationPrefs        NotificationPreference[]
+  reportsFiled              Report[]               @relation("Reporter")
+  disputesFiled             Dispute[]              @relation("DisputeBuyer")
+
+  @@map("users")
+}
+
+model OtpVerification {
+  id           String    @id @default(uuid())
+  phoneNumber  String    @map("phone_number")
+  codeHash     String    @map("code_hash")
+  expiresAt    DateTime  @map("expires_at")
+  attemptCount Int       @default(0) @map("attempt_count")
+  consumedAt   DateTime? @map("consumed_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@index([phoneNumber])
+  @@map("otp_verifications")
+}
+
+model VerificationRequest {
+  id               String              @id @default(uuid())
+  userId           String              @map("user_id")
+  user             User                @relation(fields: [userId], references: [id])
+  idDocumentUrl    String              @map("id_document_url")
+  documentType     VerificationDocType @map("document_type")
+  status           VerificationStatus  @default(PENDING)
+  reviewedByAdminId String?            @map("reviewed_by_admin_id")
+  reviewedByAdmin   AdminUser?         @relation(fields: [reviewedByAdminId], references: [id])
+  reviewedAt        DateTime?          @map("reviewed_at")
+  createdAt         DateTime           @default(now()) @map("created_at")
+
+  @@map("verification_requests")
+}
+
+model Device {
+  id            String         @id @default(uuid())
+  userId        String         @map("user_id")
+  user          User           @relation(fields: [userId], references: [id])
+  pushToken     String         @map("push_token")
+  platform      DevicePlatform
+  lastActiveAt  DateTime       @default(now()) @map("last_active_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  @@unique([userId, pushToken])
+  @@map("devices")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Reference data
+// ─────────────────────────────────────────────────────────────────────────
+
+model Region {
+  id       String @id @default(uuid())
+  nameEn   String @unique @map("name_en")
+  nameAr   String @map("name_ar")
+  cities   City[]
+
+  @@map("regions")
+}
+
+model City {
+  id       String @id @default(uuid())
+  nameEn   String @map("name_en")
+  nameAr   String @map("name_ar")
+  regionId String @map("region_id")
+  region   Region @relation(fields: [regionId], references: [id])
+
+  users               User[]
+  listingsPickup      Listing[] @relation("PickupCity")
+  addresses            Address[]
+
+  @@unique([nameEn, regionId])
+  @@map("cities")
+}
+
+model Brand {
+  id       String    @id @default(uuid())
+  nameEn   String    @unique @map("name_en")
+  nameAr   String    @map("name_ar")
+  isActive Boolean   @default(true) @map("is_active")
+  listings Listing[]
+
+  @@map("brands")
+}
+
+model StyleTag {
+  id       String             @id @default(uuid())
+  nameEn   String             @unique @map("name_en")
+  nameAr   String             @map("name_ar")
+  listings ListingStyleTag[]
+
+  @@map("style_tags")
+}
+
+model BannedKeyword {
+  id      String @id @default(uuid())
+  keyword String @unique
+
+  @@map("banned_keywords")
+}
+
+model PlatformSetting {
+  id              String   @id @default(uuid())
+  key             String   @unique
+  value           String
+  updatedByAdminId String? @map("updated_by_admin_id")
+  updatedByAdmin   AdminUser? @relation(fields: [updatedByAdminId], references: [id])
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@map("platform_settings")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Catalog
+// ─────────────────────────────────────────────────────────────────────────
+
+model Listing {
+  id                String            @id @default(uuid())
+  resellerId        String            @map("reseller_id")
+  reseller          User              @relation("ResellerListings", fields: [resellerId], references: [id])
+  title             String
+  brandId           String?           @map("brand_id")
+  brand             Brand?            @relation(fields: [brandId], references: [id])
+  sizeGulf          String            @map("size_gulf")
+  sizeIntl          String            @map("size_intl")
+  colors            String[]
+  condition         ListingCondition
+  originalPrice     Decimal           @map("original_price") @db.Decimal(10, 2)
+  askingPrice       Decimal           @map("asking_price") @db.Decimal(10, 2)
+  occasionType      OccasionType      @map("occasion_type")
+  fabricType        String            @map("fabric_type")
+  description       String            @db.VarChar(500)
+  pickupCityId      String            @map("pickup_city_id")
+  pickupCity        City              @relation("PickupCity", fields: [pickupCityId], references: [id])
+  pickupDistrict    String            @map("pickup_district")
+  shippingAvailable Boolean           @default(false) @map("shipping_available")
+  acceptsOffers     Boolean           @default(false) @map("accepts_offers")
+  status            ListingStatus     @default(PENDING_REVIEW)
+  boostedUntil      DateTime?         @map("boosted_until")
+  viewsCount        Int               @default(0) @map("views_count")
+  savesCount        Int               @default(0) @map("saves_count")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  images     ListingImage[]
+  styleTags  ListingStyleTag[]
+  wishlisted Wishlist[]
+  offers     Offer[]
+  order      Order?
+  reports    Report[]
+
+  @@index([resellerId])
+  @@index([status])
+  @@map("listings")
+}
+
+model ListingImage {
+  id        String  @id @default(uuid())
+  listingId String  @map("listing_id")
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  position  Int
+  aiFlagged Boolean @default(false) @map("ai_flagged")
+  aiFlagReason String? @map("ai_flag_reason")
+
+  @@index([listingId])
+  @@map("listing_images")
+}
+
+model ListingStyleTag {
+  listingId  String   @map("listing_id")
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  styleTagId String   @map("style_tag_id")
+  styleTag   StyleTag @relation(fields: [styleTagId], references: [id])
+
+  @@id([listingId, styleTagId])
+  @@map("listing_style_tags")
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  listingId String   @map("listing_id")
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, listingId])
+  @@map("wishlists")
+}
+
+model SavedSearch {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  user          User     @relation(fields: [userId], references: [id])
+  queryJson     Json     @map("query_json")
+  notifyOnMatch Boolean  @default(true) @map("notify_on_match")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("saved_searches")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Commerce
+// ─────────────────────────────────────────────────────────────────────────
+
+model Offer {
+  id            String      @id @default(uuid())
+  listingId     String      @map("listing_id")
+  listing       Listing     @relation(fields: [listingId], references: [id])
+  buyerId       String      @map("buyer_id")
+  buyer         User        @relation("BuyerOffers", fields: [buyerId], references: [id])
+  offerPrice    Decimal     @map("offer_price") @db.Decimal(10, 2)
+  status        OfferStatus @default(PENDING)
+  parentOfferId String?     @map("parent_offer_id")
+  parentOffer   Offer?      @relation("OfferChain", fields: [parentOfferId], references: [id])
+  counterOffers Offer[]     @relation("OfferChain")
+  expiresAt     DateTime    @map("expires_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  order   Order?
+  message Message?
+
+  @@index([listingId])
+  @@index([buyerId])
+  @@map("offers")
+}
+
+model Address {
+  id       String   @id @default(uuid())
+  userId   String   @map("user_id")
+  user     User     @relation(fields: [userId], references: [id])
+  label    String
+  cityId   String   @map("city_id")
+  city     City     @relation(fields: [cityId], references: [id])
+  district String
+  street   String
+  lat      Float?
+  lng      Float?
+
+  orders Order[]
+
+  @@map("addresses")
+}
+
+model Order {
+  id                    String         @id @default(uuid())
+  buyerId               String         @map("buyer_id")
+  buyer                 User           @relation("BuyerOrders", fields: [buyerId], references: [id])
+  resellerId            String         @map("reseller_id")
+  reseller               User           @relation("ResellerOrders", fields: [resellerId], references: [id])
+  listingId              String         @unique @map("listing_id")
+  listing                Listing        @relation(fields: [listingId], references: [id])
+  offerId                String?        @unique @map("offer_id")
+  offer                  Offer?         @relation(fields: [offerId], references: [id])
+  itemPrice               Decimal        @map("item_price") @db.Decimal(10, 2)
+  shippingFee             Decimal        @default(0) @map("shipping_fee") @db.Decimal(10, 2)
+  platformFee              Decimal        @map("platform_fee") @db.Decimal(10, 2)
+  totalAmount               Decimal        @map("total_amount") @db.Decimal(10, 2)
+  deliveryMethod             DeliveryMethod @map("delivery_method")
+  addressId                  String?        @map("address_id")
+  address                    Address?       @relation(fields: [addressId], references: [id])
+  meetupLat                   Float?         @map("meetup_lat")
+  meetupLng                    Float?         @map("meetup_lng")
+  meetupDescription             String?        @map("meetup_description")
+  status                        OrderStatus    @default(PLACED)
+  trackingNumber                 String?        @map("tracking_number")
+  courierName                     String?        @map("courier_name")
+  estimatedDeliveryDate            DateTime?      @map("estimated_delivery_date")
+  createdAt                        DateTime       @default(now()) @map("created_at")
+  updatedAt                        DateTime       @updatedAt @map("updated_at")
+
+  payment  Payment?
+  review   Review?
+  disputes Dispute[]
+
+  @@map("orders")
+}
+
+model Payment {
+  id                String          @id @default(uuid())
+  orderId           String          @unique @map("order_id")
+  order             Order           @relation(fields: [orderId], references: [id])
+  provider          PaymentProvider @default(MOYASAR)
+  providerPaymentId String          @map("provider_payment_id")
+  amount            Decimal         @db.Decimal(10, 2)
+  currency          String          @default("SAR")
+  method            PaymentMethod
+  status            PaymentStatus   @default(AUTHORIZED)
+  escrowStatus      EscrowStatus    @default(HELD) @map("escrow_status")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  @@map("payments")
+}
+
+model ResellerBankAccount {
+  id                String   @id @default(uuid())
+  resellerId        String   @unique @map("reseller_id")
+  reseller          User     @relation(fields: [resellerId], references: [id])
+  iban              String
+  bankName          String   @map("bank_name")
+  accountHolderName String   @map("account_holder_name")
+  verified          Boolean  @default(false)
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@map("reseller_bank_accounts")
+}
+
+model Payout {
+  id           String       @id @default(uuid())
+  resellerId   String       @map("reseller_id")
+  reseller     User         @relation(fields: [resellerId], references: [id])
+  amount       Decimal      @db.Decimal(10, 2)
+  status       PayoutStatus @default(PENDING)
+  requestedAt  DateTime     @default(now()) @map("requested_at")
+  processedAt  DateTime?    @map("processed_at")
+
+  @@map("payouts")
+}
+
+model Review {
+  id               String   @id @default(uuid())
+  orderId          String   @unique @map("order_id")
+  order            Order    @relation(fields: [orderId], references: [id])
+  reviewerId       String   @map("reviewer_id")
+  reviewer         User     @relation("ReviewAuthor", fields: [reviewerId], references: [id])
+  resellerId       String   @map("reseller_id")
+  reseller         User     @relation("ReviewSubject", fields: [resellerId], references: [id])
+  rating           Int
+  comment          String?
+  resellerResponse String?  @map("reseller_response")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([resellerId])
+  @@map("reviews")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Communication
+// ─────────────────────────────────────────────────────────────────────────
+
+model Conversation {
+  id            String    @id @default(uuid())
+  buyerId       String    @map("buyer_id")
+  buyer         User      @relation("BuyerConversations", fields: [buyerId], references: [id])
+  resellerId    String    @map("reseller_id")
+  reseller      User      @relation("ResellerConversations", fields: [resellerId], references: [id])
+  listingId     String?   @map("listing_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  lastMessageAt DateTime  @default(now()) @map("last_message_at")
+
+  messages Message[]
+
+  @@unique([buyerId, resellerId, listingId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String       @map("conversation_id")
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String       @map("sender_id")
+  sender         User         @relation(fields: [senderId], references: [id])
+  type           MessageType  @default(TEXT)
+  content        String?
+  imageUrl       String?      @map("image_url")
+  offerId        String?      @unique @map("offer_id")
+  offer          Offer?       @relation(fields: [offerId], references: [id])
+  readAt         DateTime?    @map("read_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+model BlockedUser {
+  id        String   @id @default(uuid())
+  blockerId String   @map("blocker_id")
+  blocker   User     @relation("Blocker", fields: [blockerId], references: [id])
+  blockedId String   @map("blocked_id")
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([blockerId, blockedId])
+  @@map("blocked_users")
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id])
+  type       String
+  payloadJson Json    @map("payload_json")
+  isRead     Boolean  @default(false) @map("is_read")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id      String  @id @default(uuid())
+  userId  String  @map("user_id")
+  user    User    @relation(fields: [userId], references: [id])
+  type    String
+  enabled Boolean @default(true)
+
+  @@unique([userId, type])
+  @@map("notification_preferences")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Trust & safety
+// ─────────────────────────────────────────────────────────────────────────
+
+model Report {
+  id                String           @id @default(uuid())
+  reporterId        String           @map("reporter_id")
+  reporter          User             @relation("Reporter", fields: [reporterId], references: [id])
+  targetType        ReportTargetType @map("target_type")
+  listingId         String?          @map("listing_id")
+  listing           Listing?         @relation(fields: [listingId], references: [id])
+  reportedUserId    String?          @map("reported_user_id")
+  reason            ReportReason
+  description       String?
+  status            ReportStatus     @default(OPEN)
+  reviewedByAdminId String?          @map("reviewed_by_admin_id")
+  reviewedByAdmin   AdminUser?       @relation(fields: [reviewedByAdminId], references: [id])
+  createdAt         DateTime         @default(now()) @map("created_at")
+
+  @@map("reports")
+}
+
+model Dispute {
+  id              String        @id @default(uuid())
+  orderId         String        @map("order_id")
+  order           Order         @relation(fields: [orderId], references: [id])
+  buyerId         String        @map("buyer_id")
+  buyer           User          @relation("DisputeBuyer", fields: [buyerId], references: [id])
+  reason          String
+  description     String
+  evidencePhotos  String[]      @map("evidence_photos")
+  status          DisputeStatus @default(OPEN)
+  resolution      String?
+  adminId         String?       @map("admin_id")
+  admin           AdminUser?    @relation(fields: [adminId], references: [id])
+  openedAt        DateTime      @default(now()) @map("opened_at")
+  deadlineAt      DateTime      @map("deadline_at")
+  resolvedAt      DateTime?     @map("resolved_at")
+
+  @@map("disputes")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Admin
+// ─────────────────────────────────────────────────────────────────────────
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         AdminRole @default(SUPPORT)
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  verificationReviews VerificationRequest[]
+  reportReviews       Report[]
+  disputeResolutions  Dispute[]
+  settingUpdates      PlatformSetting[]
+
+  @@map("admin_users")
+}

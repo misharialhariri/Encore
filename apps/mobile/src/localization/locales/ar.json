@@ -1,0 +1,62 @@
+{
+  "common": {
+    "continue": "متابعة",
+    "back": "رجوع",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "resend": "إعادة إرسال الرمز",
+    "or": "أو",
+    "skip": "لاحقًا"
+  },
+  "auth": {
+    "welcomeTitle": "مرحبًا بك في إنكور",
+    "welcomeSubtitle": "فساتين مناسبات الزفاف، بيع وشراء داخل السعودية",
+    "phoneLabel": "رقم الجوال",
+    "phonePlaceholder": "5X XXX XXXX",
+    "sendCode": "إرسال الرمز",
+    "invalidPhone": "أدخلي رقم جوال سعودي صحيح",
+    "continueWithGoogle": "المتابعة عبر جوجل",
+    "continueWithApple": "المتابعة عبر آبل",
+    "otpTitle": "أدخلي الرمز",
+    "otpSubtitle": "أرسلنا رمزًا مكونًا من 6 أرقام إلى {{phone}}",
+    "otpExpiresIn": "ينتهي الرمز خلال {{minutes}}:{{seconds}}",
+    "otpExpired": "انتهت صلاحية الرمز",
+    "verify": "تحقق",
+    "resendIn": "إعادة الإرسال خلال {{seconds}} ثانية",
+    "attemptsRemaining": "محاولة واحدة متبقية",
+    "attemptsRemaining_other": "{{count}} محاولات متبقية",
+    "biometricPromptTitle": "افتحي إنكور",
+    "biometricUnlock": "افتحي باستخدام بصمة الوجه",
+    "biometricUseCodeInstead": "استخدمي رقم الجوال بدلاً من ذلك",
+    "enableBiometric": "تفعيل بصمة الوجه / الإصبع",
+    "enableBiometricSubtitle": "سجّلي الدخول بشكل أسرع في المرة القادمة بدون رمز"
+  },
+  "onboarding": {
+    "title": "أكملي إعداد ملفك الشخصي",
+    "subtitle": "هذا ما سيراه المشترون والبائعون",
+    "addPhoto": "إضافة صورة",
+    "displayNameLabel": "الاسم الظاهر",
+    "displayNamePlaceholder": "كيف نناديك؟",
+    "regionLabel": "المنطقة",
+    "cityLabel": "المدينة",
+    "selectCity": "اختاري مدينتك",
+    "userTypeLabel": "أرغب في",
+    "userTypeBuyer": "شراء الفساتين",
+    "userTypeReseller": "بيع الفساتين",
+    "userTypeBoth": "البيع والشراء معًا",
+    "finish": "إنهاء الإعداد"
+  },
+  "home": {
+    "title": "الرئيسية",
+    "comingSoon": "قائمتك المخصصة قادمة في المرحلة الثالثة"
+  },
+  "search": { "title": "البحث", "comingSoon": "البحث والفلاتر قادمة في المرحلة الثالثة" },
+  "sell": { "title": "بيع", "comingSoon": "إنشاء الإعلانات قادم في المرحلة الثانية" },
+  "chat": { "title": "الدردشة", "comingSoon": "الدردشة داخل التطبيق قادمة في المرحلة الخامسة" },
+  "profile": {
+    "title": "الملف الشخصي",
+    "memberSince": "عضو منذ {{date}}",
+    "logout": "تسجيل الخروج",
+    "language": "اللغة"
+  }
+}
