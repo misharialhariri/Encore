@@ -2,7 +2,7 @@ import request from "supertest";
 import { createApp } from "../src/app";
 import { prisma } from "../src/config/prisma";
 import { resetDb, disconnectDb } from "./testDb";
-import { loginAndGetAccessToken, createListingDirect } from "./helpers";
+import { loginAndGetAccessToken, createListingDirect, driveOrderToStage } from "./helpers";
 
 jest.mock("../src/services/unifonic", () => ({
   sendOtpSms: jest.fn().mockResolvedValue(undefined),
@@ -96,6 +96,33 @@ describe("order status notification triggers", () => {
     await request(app).post(`/api/orders/${orderId}/confirm-receipt`).set("Authorization", `Bearer ${buyer.token}`);
     const resellerAfter = (await notificationTypesFor(reseller.id)).filter((t) => t === "ORDER_STATUS_UPDATE").length;
     expect(resellerAfter).toBe(resellerBefore + 1);
+  });
+});
+
+describe("review notification trigger", () => {
+  it("notifies the reseller when a review is left", async () => {
+    const reseller = await makeUser("0512345678");
+    const listing = await createListingDirect({ resellerId: reseller.id });
+    const buyer = await makeUser("0587654321");
+    const orderId = await driveOrderToStage(app, buyer.token, reseller.token, listing.id, "COMPLETED");
+
+    await request(app).post("/api/reviews").set("Authorization", `Bearer ${buyer.token}`).send({ orderId, rating: 5 });
+    expect(await notificationTypesFor(reseller.id)).toContain("REVIEW_RECEIVED");
+  });
+});
+
+describe("dispute notification trigger", () => {
+  it("notifies the reseller when a dispute is opened", async () => {
+    const reseller = await makeUser("0512345678");
+    const listing = await createListingDirect({ resellerId: reseller.id });
+    const buyer = await makeUser("0587654321");
+    const orderId = await driveOrderToStage(app, buyer.token, reseller.token, listing.id, "SHIPPED");
+
+    await request(app)
+      .post("/api/disputes")
+      .set("Authorization", `Bearer ${buyer.token}`)
+      .send({ orderId, reason: "Item not as described", description: "Stained bodice." });
+    expect(await notificationTypesFor(reseller.id)).toContain("DISPUTE_UPDATE");
   });
 });
 

@@ -9,6 +9,8 @@ export async function resetDb() {
   await prisma.notification.deleteMany();
   await prisma.notificationPreference.deleteMany();
   await prisma.device.deleteMany();
+  await prisma.review.deleteMany(); // references orders, so must go before order.deleteMany()
+  await prisma.dispute.deleteMany(); // references orders, so must go before order.deleteMany()
   await prisma.payment.deleteMany();
   await prisma.order.deleteMany();
   await prisma.offer.deleteMany();
@@ -17,6 +19,7 @@ export async function resetDb() {
   await prisma.resellerBankAccount.deleteMany();
   await prisma.payout.deleteMany();
   await prisma.address.deleteMany();
+  await prisma.verificationRequest.deleteMany();
   await prisma.listing.deleteMany(); // cascades listing_images + listing_style_tags
   await prisma.styleTag.deleteMany();
   await prisma.brand.deleteMany();

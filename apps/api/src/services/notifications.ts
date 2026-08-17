@@ -9,6 +9,8 @@ export const NotificationType = {
   OFFER_COUNTERED: "OFFER_COUNTERED",
   ORDER_STATUS_UPDATE: "ORDER_STATUS_UPDATE",
   PRICE_DROP: "PRICE_DROP",
+  REVIEW_RECEIVED: "REVIEW_RECEIVED",
+  DISPUTE_UPDATE: "DISPUTE_UPDATE",
 } as const;
 
 export type NotificationTypeValue = (typeof NotificationType)[keyof typeof NotificationType];

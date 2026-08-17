@@ -15,6 +15,7 @@ import { MyOrdersScreen } from "../features/orders/screens/MyOrdersScreen";
 import { ConversationScreen } from "../features/chat/screens/ConversationScreen";
 import { NotificationCenterScreen } from "../features/notifications/screens/NotificationCenterScreen";
 import { NotificationPreferencesScreen } from "../features/notifications/screens/NotificationPreferencesScreen";
+import { VerificationScreen } from "../features/verification/screens/VerificationScreen";
 import { colors } from "../theme/colors";
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
@@ -41,6 +42,7 @@ export function ProfileNavigator() {
         component={NotificationPreferencesScreen}
         options={{ title: t("notifications.preferencesTitle") }}
       />
+      <Stack.Screen name="Verification" component={VerificationScreen} options={{ title: t("verification.title") }} />
     </Stack.Navigator>
   );
 }

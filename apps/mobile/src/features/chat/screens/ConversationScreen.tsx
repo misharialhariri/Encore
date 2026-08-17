@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { SharedListingRoutes } from "../../../navigation/types";
 import { TextField } from "../../../components/TextField";
+import { ReportUserModal } from "../../../components/ReportUserModal";
 import { useAuthStore } from "../../../store/authStore";
 import * as chatApi from "../../../api/chat";
 import { extractApiErrorMessage } from "../../../api/client";
@@ -26,6 +27,7 @@ export function ConversationScreen({ route, navigation }: Props) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
   const listRef = useRef<FlatList<chatApi.Message>>(null);
 
   const loadConversationInfo = useCallback(async () => {
@@ -71,10 +73,19 @@ export function ConversationScreen({ route, navigation }: Props) {
     ]);
   }
 
+  function handleMenu() {
+    if (!conversation) return;
+    Alert.alert(conversation.otherParty.displayName ?? t("chat.title"), undefined, [
+      { text: t("common.cancel"), style: "cancel" },
+      { text: t("reportUser.title"), onPress: () => setReportOpen(true) },
+      { text: t("chat.block"), style: "destructive", onPress: handleBlock },
+    ]);
+  }
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Pressable onPress={handleBlock} hitSlop={8}>
+        <Pressable onPress={handleMenu} hitSlop={8}>
           <Ionicons name="ellipsis-horizontal" size={22} color={colors.ink} />
         </Pressable>
       ),
@@ -179,6 +190,10 @@ export function ConversationScreen({ route, navigation }: Props) {
           <Ionicons name="send" size={20} color={text.trim() ? colors.accent : colors.muted} />
         </Pressable>
       </View>
+
+      {conversation && (
+        <ReportUserModal visible={reportOpen} onClose={() => setReportOpen(false)} userId={conversation.otherParty.id} />
+      )}
     </KeyboardAvoidingView>
   );
 }

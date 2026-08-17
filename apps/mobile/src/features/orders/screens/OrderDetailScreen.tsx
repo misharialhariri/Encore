@@ -7,9 +7,13 @@ import type { SharedListingRoutes } from "../../../navigation/types";
 import { ScreenContainer } from "../../../components/ScreenContainer";
 import { TextField } from "../../../components/TextField";
 import { Button } from "../../../components/Button";
+import { LeaveReviewModal } from "../components/LeaveReviewModal";
+import { OpenDisputeModal } from "../components/OpenDisputeModal";
 import { useAuthStore } from "../../../store/authStore";
 import * as ordersApi from "../../../api/orders";
 import type { Order } from "../../../api/orders";
+import * as reviewsApi from "../../../api/reviews";
+import * as disputesApi from "../../../api/disputes";
 import { extractApiErrorMessage } from "../../../api/client";
 import { STATUS_KEYS, STATUS_COLORS } from "../components/OrderListView";
 import { colors, radius, spacing } from "../../../theme/colors";
@@ -20,14 +24,28 @@ export function OrderDetailScreen({ route }: Props) {
   const { t } = useTranslation();
   const currentUserId = useAuthStore((s) => s.user?.id);
   const [order, setOrder] = useState<Order | null>(null);
+  const [review, setReview] = useState<reviewsApi.Review | null>(null);
+  const [dispute, setDispute] = useState<disputesApi.Dispute | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showShipForm, setShowShipForm] = useState(false);
   const [trackingNumber, setTrackingNumber] = useState("");
   const [courierName, setCourierName] = useState("");
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [disputeModalOpen, setDisputeModalOpen] = useState(false);
+  const [responseText, setResponseText] = useState("");
+  const [responseBusy, setResponseBusy] = useState(false);
 
   const load = useCallback(() => {
-    ordersApi.getOrder(route.params.orderId).then(setOrder);
+    ordersApi.getOrder(route.params.orderId).then((loaded) => {
+      setOrder(loaded);
+      if (loaded.status === "COMPLETED") {
+        reviewsApi.getReviewForOrder(loaded.id).then(setReview);
+      }
+      if (loaded.status === "DISPUTED") {
+        disputesApi.getDisputeForOrder(loaded.id).then(setDispute);
+      }
+    });
   }, [route.params.orderId]);
 
   useFocusEffect(load);
@@ -122,8 +140,85 @@ export function OrderDetailScreen({ route }: Props) {
       )}
 
       {isBuyer && (order.status === "SHIPPED" || order.status === "DELIVERED") && (
-        <Button label={t("orders.confirmReceiptAction")} onPress={confirmReceiptPrompt} loading={busy} style={styles.actionButton} />
+        <View style={styles.actionsRow}>
+          <Button label={t("orders.confirmReceiptAction")} onPress={confirmReceiptPrompt} loading={busy} style={styles.actionButton} />
+          <Button label={t("disputes.reportProblem")} variant="ghost" onPress={() => setDisputeModalOpen(true)} style={styles.actionButton} />
+        </View>
       )}
+
+      {order.status === "DISPUTED" && dispute && (
+        <View style={styles.disputeCard}>
+          <Text style={styles.disputeTitle}>{t("disputes.statusLabel", { status: t(`disputes.status${dispute.status}`) })}</Text>
+          <Text style={styles.disputeReason}>{dispute.reason}</Text>
+          <Text style={styles.disputeDescription}>{dispute.description}</Text>
+          <Text style={styles.disputeDeadline}>
+            {t("disputes.deadline", { date: new Date(dispute.deadlineAt).toLocaleDateString() })}
+          </Text>
+          {dispute.resolution ? <Text style={styles.disputeDescription}>{t("disputes.resolution", { resolution: dispute.resolution })}</Text> : null}
+        </View>
+      )}
+
+      {order.status === "COMPLETED" && isBuyer && !review && (
+        <Button label={t("reviews.leaveReviewAction")} onPress={() => setReviewModalOpen(true)} style={styles.actionButton} />
+      )}
+
+      {review && (
+        <View style={styles.reviewCard}>
+          <Text style={styles.reviewRating}>{"★".repeat(review.rating)}</Text>
+          {review.comment ? <Text style={styles.disputeDescription}>{review.comment}</Text> : null}
+
+          {review.resellerResponse ? (
+            <View style={styles.reviewResponse}>
+              <Text style={styles.disputeTitle}>{t("resellerProfile.resellerResponse")}</Text>
+              <Text style={styles.disputeDescription}>{review.resellerResponse}</Text>
+            </View>
+          ) : isReseller ? (
+            <View style={styles.reviewResponse}>
+              <TextField
+                value={responseText}
+                onChangeText={setResponseText}
+                placeholder={t("reviews.responsePlaceholder")}
+                multiline
+              />
+              <Button
+                label={t("reviews.submitResponse")}
+                loading={responseBusy}
+                disabled={!responseText.trim()}
+                onPress={async () => {
+                  setResponseBusy(true);
+                  try {
+                    const updated = await reviewsApi.respondToReview(review.id, responseText.trim());
+                    setReview(updated);
+                    setResponseText("");
+                  } finally {
+                    setResponseBusy(false);
+                  }
+                }}
+              />
+            </View>
+          ) : null}
+        </View>
+      )}
+
+      <LeaveReviewModal
+        visible={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        orderId={order.id}
+        onSubmitted={(submitted) => {
+          setReview(submitted);
+          setReviewModalOpen(false);
+        }}
+      />
+      <OpenDisputeModal
+        visible={disputeModalOpen}
+        onClose={() => setDisputeModalOpen(false)}
+        orderId={order.id}
+        onSubmitted={(opened) => {
+          setDispute(opened);
+          setDisputeModalOpen(false);
+          load();
+        }}
+      />
     </ScreenContainer>
   );
 }
@@ -159,5 +254,31 @@ const styles = StyleSheet.create({
   rowValue: { fontSize: 13, color: colors.ink, fontWeight: "600", flexShrink: 1, textAlign: "right" },
   error: { color: colors.danger, fontSize: 13, marginTop: spacing.md },
   actionButton: { marginTop: spacing.lg, marginBottom: spacing.xl },
+  actionsRow: { flexDirection: "row", gap: spacing.sm },
   shipForm: { marginTop: spacing.lg, gap: spacing.sm, marginBottom: spacing.xl },
+  disputeCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.danger,
+    padding: spacing.md,
+    marginTop: spacing.md,
+    gap: spacing.xs,
+  },
+  disputeTitle: { fontSize: 13, fontWeight: "700", color: colors.ink },
+  disputeReason: { fontSize: 14, fontWeight: "600", color: colors.ink },
+  disputeDescription: { fontSize: 13, color: colors.inkSoft },
+  disputeDeadline: { fontSize: 12, color: colors.muted },
+  reviewCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    marginTop: spacing.md,
+    marginBottom: spacing.xl,
+    gap: spacing.xs,
+  },
+  reviewRating: { fontSize: 16, color: colors.warning },
+  reviewResponse: { marginTop: spacing.sm, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border, gap: spacing.sm },
 });

@@ -115,6 +115,15 @@ export function ProfileScreen({ navigation }: Props) {
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.muted} />
         </Pressable>
+        {(user.userType === "RESELLER" || user.userType === "BOTH") && !user.isVerified && (
+          <>
+            <View style={styles.divider} />
+            <Pressable style={styles.row} onPress={() => navigation.navigate("Verification")}>
+              <Text style={styles.rowLabel}>{t("verification.getVerified")}</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+            </Pressable>
+          </>
+        )}
       </View>
 
       <View style={styles.section}>

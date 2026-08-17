@@ -52,6 +52,7 @@ export type ProfileStackParamList = SharedListingRoutes & {
   MyOrders: undefined;
   Notifications: undefined;
   NotificationPreferences: undefined;
+  Verification: undefined;
 };
 
 export type ChatStackParamList = SharedListingRoutes & {

@@ -10,6 +10,48 @@ export async function loginAndGetAccessToken(app: Express, phoneNumber: string):
   return res.body.accessToken as string;
 }
 
+type OrderStage = "PLACED" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "COMPLETED";
+const ORDER_STAGE_ORDER: OrderStage[] = ["PLACED", "CONFIRMED", "SHIPPED", "DELIVERED", "COMPLETED"];
+
+// Drives a fresh order through the real HTTP lifecycle up to (and including)
+// the given stage, entirely through the same endpoints the mobile app calls
+// — used by tests that need a paid/shipped/completed order as a fixture
+// rather than as the thing under test.
+export async function driveOrderToStage(
+  app: Express,
+  buyerToken: string,
+  resellerToken: string,
+  listingId: string,
+  stage: OrderStage
+): Promise<string> {
+  const created = await request(app)
+    .post("/api/orders")
+    .set("Authorization", `Bearer ${buyerToken}`)
+    .send({ listingId, deliveryMethod: "MEETUP", meetupLat: 24.7, meetupLng: 46.7 });
+  const orderId = created.body.order.id as string;
+
+  await request(app).post(`/api/orders/${orderId}/dev-simulate-payment`).set("Authorization", `Bearer ${buyerToken}`);
+
+  const targetIndex = ORDER_STAGE_ORDER.indexOf(stage);
+  if (targetIndex >= ORDER_STAGE_ORDER.indexOf("CONFIRMED")) {
+    await request(app).post(`/api/orders/${orderId}/confirm`).set("Authorization", `Bearer ${resellerToken}`);
+  }
+  if (targetIndex >= ORDER_STAGE_ORDER.indexOf("SHIPPED")) {
+    await request(app)
+      .post(`/api/orders/${orderId}/ship`)
+      .set("Authorization", `Bearer ${resellerToken}`)
+      .send({ trackingNumber: "TRK1", courierName: "Aramex" });
+  }
+  if (targetIndex >= ORDER_STAGE_ORDER.indexOf("DELIVERED")) {
+    await request(app).post(`/api/orders/${orderId}/deliver`).set("Authorization", `Bearer ${resellerToken}`);
+  }
+  if (targetIndex >= ORDER_STAGE_ORDER.indexOf("COMPLETED")) {
+    await request(app).post(`/api/orders/${orderId}/confirm-receipt`).set("Authorization", `Bearer ${buyerToken}`);
+  }
+
+  return orderId;
+}
+
 // upsert-by-name so calling these more than once within a test (before the
 // next resetDb) reuses the same fixture row instead of hitting unique
 // constraints on the reference tables' name columns.

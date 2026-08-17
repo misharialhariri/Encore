@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { SharedListingRoutes } from "../../../navigation/types";
 import { ScreenContainer } from "../../../components/ScreenContainer";
+import { ReportUserModal } from "../../../components/ReportUserModal";
 import * as resellersApi from "../../../api/resellers";
+import * as reviewsApi from "../../../api/reviews";
 import { colors, radius, spacing } from "../../../theme/colors";
 
 type Props = NativeStackScreenProps<SharedListingRoutes, "ResellerProfile">;
@@ -12,10 +15,23 @@ type Props = NativeStackScreenProps<SharedListingRoutes, "ResellerProfile">;
 export function ResellerProfileScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
   const [profile, setProfile] = useState<resellersApi.ResellerProfile | null>(null);
+  const [reviews, setReviews] = useState<reviewsApi.Review[]>([]);
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     resellersApi.getResellerProfile(route.params.resellerId).then(setProfile);
+    reviewsApi.getResellerReviews(route.params.resellerId).then(setReviews);
   }, [route.params.resellerId]);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable onPress={() => setReportOpen(true)} hitSlop={8}>
+          <Ionicons name="flag-outline" size={20} color={colors.ink} />
+        </Pressable>
+      ),
+    });
+  }, [navigation]);
 
   if (!profile) return <ScreenContainer scroll={false} />;
 
@@ -74,7 +90,33 @@ export function ResellerProfileScreen({ route, navigation }: Props) {
             <Text style={styles.listingPrice}>{item.askingPrice} SAR</Text>
           </Pressable>
         )}
+        ListFooterComponent={
+          <View style={styles.reviewsSection}>
+            <Text style={styles.sectionTitle}>{t("resellerProfile.reviewsTitle")}</Text>
+            {reviews.length === 0 ? (
+              <Text style={styles.empty}>{t("resellerProfile.noRatingYet")}</Text>
+            ) : (
+              reviews.map((review) => (
+                <View key={review.id} style={styles.reviewRow}>
+                  <View style={styles.reviewHeader}>
+                    <Text style={styles.reviewAuthor}>{review.reviewer.displayName ?? "—"}</Text>
+                    <Text style={styles.reviewRating}>{"★".repeat(review.rating)}</Text>
+                  </View>
+                  {review.comment ? <Text style={styles.reviewComment}>{review.comment}</Text> : null}
+                  {review.resellerResponse ? (
+                    <View style={styles.reviewResponse}>
+                      <Text style={styles.reviewResponseLabel}>{t("resellerProfile.resellerResponse")}</Text>
+                      <Text style={styles.reviewComment}>{review.resellerResponse}</Text>
+                    </View>
+                  ) : null}
+                </View>
+              ))
+            )}
+          </View>
+        }
       />
+
+      <ReportUserModal visible={reportOpen} onClose={() => setReportOpen(false)} userId={profile.id} />
     </ScreenContainer>
   );
 }
@@ -101,5 +143,20 @@ const styles = StyleSheet.create({
   listingImage: { width: "100%", aspectRatio: 1, borderRadius: radius.sm },
   listingImagePlaceholder: { backgroundColor: colors.surfaceAlt },
   listingTitle: { fontSize: 13, color: colors.ink, marginTop: spacing.xs },
+  reviewsSection: { marginTop: spacing.lg },
+  reviewRow: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  reviewHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  reviewAuthor: { fontSize: 13, fontWeight: "600", color: colors.ink },
+  reviewRating: { fontSize: 13, color: colors.warning },
+  reviewComment: { fontSize: 13, color: colors.inkSoft, marginTop: spacing.xs },
+  reviewResponse: { marginTop: spacing.sm, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border },
+  reviewResponseLabel: { fontSize: 11, fontWeight: "700", color: colors.accent },
   listingPrice: { fontSize: 13, color: colors.accent, fontWeight: "700" },
 });

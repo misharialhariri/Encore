@@ -25,6 +25,9 @@ import { payoutsRouter } from "./modules/payouts/payouts.routes";
 import { devicesRouter } from "./modules/devices/devices.routes";
 import { notificationsRouter } from "./modules/notifications/notifications.routes";
 import { chatRouter } from "./modules/chat/chat.routes";
+import { reviewsRouter } from "./modules/reviews/reviews.routes";
+import { disputesRouter } from "./modules/disputes/disputes.routes";
+import { verificationRouter } from "./modules/verification/verification.routes";
 
 export function createApp() {
   const app = express();
@@ -60,6 +63,9 @@ export function createApp() {
   app.use("/api/devices", devicesRouter);
   app.use("/api/notifications", notificationsRouter);
   app.use("/api/chat", chatRouter);
+  app.use("/api/reviews", reviewsRouter);
+  app.use("/api/disputes", disputesRouter);
+  app.use("/api/verification", verificationRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

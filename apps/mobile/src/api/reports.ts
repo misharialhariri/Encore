@@ -12,3 +12,7 @@ export type ReportReason =
 export async function reportListing(listingId: string, reason: ReportReason, description?: string): Promise<void> {
   await apiClient.post("/reports", { targetType: "LISTING", listingId, reason, description });
 }
+
+export async function reportUser(reportedUserId: string, reason: ReportReason, description?: string): Promise<void> {
+  await apiClient.post("/reports", { targetType: "USER", reportedUserId, reason, description });
+}
