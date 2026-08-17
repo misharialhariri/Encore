@@ -41,3 +41,24 @@ export function issueTokenPair(userId: string) {
     refreshToken: signRefreshToken(userId),
   };
 }
+
+export interface AdminAccessTokenPayload {
+  sub: string;
+  role: string;
+  type: "admin_access";
+}
+
+// Deliberately signed with a separate secret (JWT_ADMIN_SECRET) from the
+// buyer/reseller tokens above, so a leaked admin token can't be replayed
+// against user-facing endpoints or vice versa.
+export function signAdminAccessToken(adminId: string, role: string): string {
+  return jwt.sign({ sub: adminId, role, type: "admin_access" } satisfies AdminAccessTokenPayload, env.JWT_ADMIN_SECRET, {
+    expiresIn: env.JWT_ADMIN_TTL,
+  } as SignOptions);
+}
+
+export function verifyAdminAccessToken(token: string): AdminAccessTokenPayload {
+  const decoded = jwt.verify(token, env.JWT_ADMIN_SECRET) as AdminAccessTokenPayload;
+  if (decoded.type !== "admin_access") throw new Error("Not an admin access token");
+  return decoded;
+}

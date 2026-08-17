@@ -19,6 +19,11 @@ const LABEL_KEYS: Record<NotificationType, string> = {
   OFFER_COUNTERED: "notifications.typeOfferCountered",
   ORDER_STATUS_UPDATE: "notifications.typeOrderStatusUpdate",
   PRICE_DROP: "notifications.typePriceDrop",
+  REVIEW_RECEIVED: "notifications.typeReviewReceived",
+  DISPUTE_UPDATE: "notifications.typeDisputeUpdate",
+  LISTING_MODERATED: "notifications.typeListingModerated",
+  VERIFICATION_UPDATE: "notifications.typeVerificationUpdate",
+  PAYOUT_UPDATE: "notifications.typePayoutUpdate",
 };
 
 export function NotificationPreferencesScreen(_props: Props) {

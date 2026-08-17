@@ -23,3 +23,16 @@ export const otpRateLimiter = rateLimit({
   keyGenerator: (req) => (typeof req.body?.phoneNumber === "string" ? req.body.phoneNumber : req.ip ?? "unknown"),
   message: { error: { code: "RATE_LIMITED", message: "Too many OTP requests. Try again later." } },
 });
+
+// Admin login: guards a password-based endpoint against credential
+// stuffing/brute force, keyed by the attempted email so one account can't
+// be hammered from rotating IPs.
+export const adminLoginRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => isTest,
+  keyGenerator: (req) => (typeof req.body?.email === "string" ? req.body.email : req.ip ?? "unknown"),
+  message: { error: { code: "RATE_LIMITED", message: "Too many login attempts. Try again later." } },
+});

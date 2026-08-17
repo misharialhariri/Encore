@@ -28,6 +28,7 @@ import { chatRouter } from "./modules/chat/chat.routes";
 import { reviewsRouter } from "./modules/reviews/reviews.routes";
 import { disputesRouter } from "./modules/disputes/disputes.routes";
 import { verificationRouter } from "./modules/verification/verification.routes";
+import { adminRouter } from "./modules/admin/admin.routes";
 
 export function createApp() {
   const app = express();
@@ -66,6 +67,7 @@ export function createApp() {
   app.use("/api/reviews", reviewsRouter);
   app.use("/api/disputes", disputesRouter);
   app.use("/api/verification", verificationRouter);
+  app.use("/api/admin", adminRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

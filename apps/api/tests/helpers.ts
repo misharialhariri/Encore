@@ -1,4 +1,5 @@
 import request from "supertest";
+import bcrypt from "bcryptjs";
 import type { Express } from "express";
 import { prisma } from "../src/config/prisma";
 
@@ -8,6 +9,27 @@ export async function loginAndGetAccessToken(app: Express, phoneNumber: string):
   const code = (unifonic.sendOtpSms as jest.Mock).mock.calls.at(-1)![1] as string;
   const res = await request(app).post("/api/auth/otp/verify").send({ phoneNumber, code });
   return res.body.accessToken as string;
+}
+
+type AdminRole = "SUPER_ADMIN" | "OPS" | "FINANCE" | "SUPPORT";
+const TEST_ADMIN_PASSWORD = "test-admin-password-123";
+
+// Low bcrypt cost factor here (vs. the real 10 used at signup/seed time) —
+// this only needs to be a valid hash for tests, not production-strength.
+export async function makeAdminUser(role: AdminRole = "SUPER_ADMIN", email?: string) {
+  const passwordHash = await bcrypt.hash(TEST_ADMIN_PASSWORD, 4);
+  const admin = await prisma.adminUser.create({
+    data: { email: email ?? `admin-${Date.now()}-${Math.random().toString(36).slice(2)}@encore.example`, passwordHash, role },
+  });
+  return { id: admin.id, email: admin.email, role: admin.role, password: TEST_ADMIN_PASSWORD };
+}
+
+// Creates an admin and logs in through the real HTTP endpoint (not a
+// shortcut) so every admin-gated test exercises the actual login flow.
+export async function makeAdminAndLogin(app: Express, role: AdminRole = "SUPER_ADMIN") {
+  const admin = await makeAdminUser(role);
+  const res = await request(app).post("/api/admin/auth/login").send({ email: admin.email, password: admin.password });
+  return { token: res.body.accessToken as string, id: admin.id, email: admin.email, role: admin.role };
 }
 
 type OrderStage = "PLACED" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "COMPLETED";

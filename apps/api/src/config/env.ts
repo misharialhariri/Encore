@@ -12,6 +12,16 @@ const envSchema = z.object({
   JWT_ACCESS_TTL: z.string().default("15m"),
   JWT_REFRESH_TTL: z.string().default("30d"),
 
+  // Kept separate from the buyer/reseller JWT secrets so a leak of one
+  // token family can't be replayed against the other's endpoints.
+  JWT_ADMIN_SECRET: z.string().min(16, "JWT_ADMIN_SECRET must be set to a long random value"),
+  JWT_ADMIN_TTL: z.string().default("8h"),
+
+  // Bootstraps the first SUPER_ADMIN account on `npm run seed` if no admin
+  // with this email exists yet. Only read at seed time, never at runtime.
+  ADMIN_EMAIL: z.string().default("admin@encore.example"),
+  ADMIN_PASSWORD: z.string().default("change-me-immediately"),
+
   OTP_EXPIRY_MINUTES: z.coerce.number().default(5),
   OTP_MAX_ATTEMPTS: z.coerce.number().default(3),
 

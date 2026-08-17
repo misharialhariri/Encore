@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -191,6 +192,15 @@ async function main() {
       update: { nameAr: tag.nameAr },
       create: tag,
     });
+  }
+
+  const adminEmail = (process.env.ADMIN_EMAIL || "admin@encore.example").trim().toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD || "change-me-immediately";
+  const existingAdmin = await prisma.adminUser.findUnique({ where: { email: adminEmail } });
+  if (!existingAdmin) {
+    const passwordHash = await bcrypt.hash(adminPassword, 10);
+    await prisma.adminUser.create({ data: { email: adminEmail, passwordHash, role: "SUPER_ADMIN" } });
+    console.log(`Created SUPER_ADMIN account for ${adminEmail} — change this password after first login.`);
   }
 
   const regionCount = await prisma.region.count();

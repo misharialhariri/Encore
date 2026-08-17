@@ -25,6 +25,7 @@ export async function resetDb() {
   await prisma.brand.deleteMany();
   await prisma.bannedKeyword.deleteMany();
   await prisma.platformSetting.deleteMany();
+  await prisma.adminUser.deleteMany();
   await prisma.user.deleteMany();
   await prisma.city.deleteMany();
   await prisma.region.deleteMany();

@@ -53,8 +53,8 @@ export async function openDispute(buyerId: string, input: OpenDisputeInput) {
   });
   if (existingOpen) throw AppError.badRequest("DISPUTE_ALREADY_OPEN", "There is already an open dispute for this order");
 
-  const windowDays = await getPlatformSettingNumber("dispute_response_window_days", 3);
-  const deadlineAt = new Date(Date.now() + windowDays * 24 * 60 * 60 * 1000);
+  const windowHours = await getPlatformSettingNumber("dispute_resolution_hours", 72);
+  const deadlineAt = new Date(Date.now() + windowHours * 60 * 60 * 1000);
 
   const [dispute] = await prisma.$transaction([
     prisma.dispute.create({

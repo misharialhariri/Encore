@@ -70,7 +70,12 @@
     "typeOfferDeclined": "Offer declined",
     "typeOfferCountered": "Offer countered",
     "typeOrderStatusUpdate": "Order updates",
-    "typePriceDrop": "Price drops on saved items"
+    "typePriceDrop": "Price drops on saved items",
+    "typeReviewReceived": "New reviews",
+    "typeDisputeUpdate": "Dispute updates",
+    "typeListingModerated": "Listing review decisions",
+    "typeVerificationUpdate": "Verification updates",
+    "typePayoutUpdate": "Payout updates"
   },
   "profile": {
     "title": "Profile",

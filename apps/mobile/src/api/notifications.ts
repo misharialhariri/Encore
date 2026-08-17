@@ -7,7 +7,12 @@ export type NotificationType =
   | "OFFER_DECLINED"
   | "OFFER_COUNTERED"
   | "ORDER_STATUS_UPDATE"
-  | "PRICE_DROP";
+  | "PRICE_DROP"
+  | "REVIEW_RECEIVED"
+  | "DISPUTE_UPDATE"
+  | "LISTING_MODERATED"
+  | "VERIFICATION_UPDATE"
+  | "PAYOUT_UPDATE";
 
 export interface AppNotification {
   id: string;

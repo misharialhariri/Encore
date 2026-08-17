@@ -70,7 +70,12 @@
     "typeOfferDeclined": "رفض العرض",
     "typeOfferCountered": "المقابل على العرض",
     "typeOrderStatusUpdate": "تحديثات الطلب",
-    "typePriceDrop": "انخفاض سعر العناصر المحفوظة"
+    "typePriceDrop": "انخفاض سعر العناصر المحفوظة",
+    "typeReviewReceived": "التقييمات الجديدة",
+    "typeDisputeUpdate": "تحديثات النزاع",
+    "typeListingModerated": "قرارات مراجعة الإعلانات",
+    "typeVerificationUpdate": "تحديثات التحقق",
+    "typePayoutUpdate": "تحديثات الدفعات"
   },
   "profile": {
     "title": "الملف الشخصي",
