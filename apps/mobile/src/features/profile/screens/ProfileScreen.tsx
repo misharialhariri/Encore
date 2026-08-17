@@ -1,7 +1,10 @@
 import React, { useState } from "react";
-import { Alert, Image, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, Image, Pressable, StyleSheet, Switch, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import * as LocalAuthentication from "expo-local-authentication";
+import { Ionicons } from "@expo/vector-icons";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { ProfileStackParamList } from "../../../navigation/types";
 import { ScreenContainer } from "../../../components/ScreenContainer";
 import { Button } from "../../../components/Button";
 import { useAuthStore } from "../../../store/authStore";
@@ -9,7 +12,9 @@ import * as usersApi from "../../../api/users";
 import { applyLayoutDirection, type SupportedLanguage } from "../../../localization/i18n";
 import { colors, radius, spacing } from "../../../theme/colors";
 
-export function ProfileScreen() {
+type Props = NativeStackScreenProps<ProfileStackParamList, "ProfileHome">;
+
+export function ProfileScreen({ navigation }: Props) {
   const { t, i18n } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const biometricEnabled = useAuthStore((s) => s.biometricEnabled);
@@ -65,7 +70,19 @@ export function ProfileScreen() {
         )}
         <Text style={styles.name}>{user.displayName}</Text>
         {user.city ? <Text style={styles.city}>{user.city.nameEn}</Text> : null}
+        {user.createdAt ? (
+          <Text style={styles.memberSince}>
+            {t("profile.memberSince", {
+              date: new Date(user.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "long" }),
+            })}
+          </Text>
+        ) : null}
       </View>
+
+      <Pressable style={[styles.section, styles.row]} onPress={() => navigation.navigate("Wishlist")}>
+        <Text style={styles.rowLabel}>{t("wishlist.title")}</Text>
+        <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+      </Pressable>
 
       <View style={styles.section}>
         <View style={styles.row}>
@@ -104,6 +121,7 @@ const styles = StyleSheet.create({
   avatarInitial: { fontSize: 32, fontWeight: "700", color: colors.accent },
   name: { fontSize: 20, fontWeight: "700", color: colors.ink, marginTop: spacing.sm },
   city: { fontSize: 14, color: colors.inkSoft, marginTop: spacing.xs },
+  memberSince: { fontSize: 12, color: colors.muted, marginTop: 2 },
   section: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,

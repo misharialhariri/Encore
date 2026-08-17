@@ -3,9 +3,9 @@ import { AppError } from "../../utils/AppError";
 import { createPresignedUpload } from "../../services/s3";
 import type { Prisma } from "@prisma/client";
 
-type UserWithCity = Prisma.UserGetPayload<{ include: { city: true } }>;
+export type UserWithCity = Prisma.UserGetPayload<{ include: { city: true } }>;
 
-function toPublicUser(user: UserWithCity) {
+export function toPublicUser(user: UserWithCity) {
   return {
     id: user.id,
     phoneNumber: user.phoneNumber,
@@ -17,6 +17,7 @@ function toPublicUser(user: UserWithCity) {
     isVerified: user.isVerified,
     languagePref: user.languagePref,
     biometricEnabled: user.biometricEnabled,
+    preferredSizes: user.preferredSizes,
     createdAt: user.createdAt,
     needsProfileSetup: !user.displayName || !user.userType,
   };

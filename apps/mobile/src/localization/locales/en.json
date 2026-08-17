@@ -46,11 +46,6 @@
     "userTypeBoth": "Both buy and sell",
     "finish": "Finish setup"
   },
-  "home": {
-    "title": "Home",
-    "comingSoon": "Your personalized feed is coming in Phase 3"
-  },
-  "search": { "title": "Search", "comingSoon": "Search and filters are coming in Phase 3" },
   "sell": { "title": "Sell" },
   "chat": { "title": "Chat", "comingSoon": "In-app chat is coming in Phase 5" },
   "profile": {
@@ -123,8 +118,8 @@
     "saveChanges": "Save changes",
     "pendingReviewNotice": "This listing needs a quick review before it's visible to buyers."
   },
-  "listingPreview": {
-    "title": "Preview",
+  "listingDetail": {
+    "title": "Listing",
     "sizeConversion": "Gulf {{gulf}} · EU {{eu}} · US {{us}} · UK {{uk}}",
     "condition": "Condition",
     "fabric": "Fabric",
@@ -133,7 +128,27 @@
     "shippingNotAvailable": "Pickup only",
     "acceptsOffers": "Accepts offers",
     "views": "views",
-    "saves": "saves"
+    "saves": "saves",
+    "yourListing": "This is your listing",
+    "save": "Save",
+    "saved": "Saved",
+    "share": "Share",
+    "report": "Report",
+    "buyNow": "Buy now",
+    "makeOffer": "Make an offer",
+    "chatWithReseller": "Chat with reseller",
+    "comingSoon": "This is coming in a later phase.",
+    "similarItems": "Similar items",
+    "reportTitle": "Report this listing",
+    "reportReasonLabel": "What's wrong?",
+    "reportReasonWrongCategory": "Wrong category",
+    "reportReasonFakePhotos": "Fake photos",
+    "reportReasonProhibitedItem": "Prohibited item",
+    "reportReasonScam": "Scam",
+    "reportReasonOther": "Other",
+    "reportDescriptionPlaceholder": "Add any details that would help us review this (optional)",
+    "reportSubmit": "Submit report",
+    "reportSuccess": "Thanks — our team will review this listing."
   },
   "resellerProfile": {
     "title": "Reseller profile",
@@ -144,5 +159,41 @@
     "noRatingYet": "No reviews yet",
     "activeListings": "Active listings",
     "noActiveListings": "No active listings right now"
+  },
+  "home": {
+    "title": "Home",
+    "recentlyListed": "Recently listed",
+    "trending": "Trending this week",
+    "nearMe": "Near you",
+    "forYou": "For you",
+    "featuredResellers": "Featured resellers",
+    "seeAll": "See all",
+    "emptyFeed": "Nothing here yet — check back soon."
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search dresses, brands...",
+    "recentSearches": "Recent searches",
+    "clearRecent": "Clear",
+    "filters": "Filters",
+    "sort": "Sort",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low",
+    "sortPopular": "Most popular",
+    "sortNearest": "Nearest",
+    "applyFilters": "Show results",
+    "clearFilters": "Clear all",
+    "priceRange": "Price range (SAR)",
+    "priceMin": "Min",
+    "priceMax": "Max",
+    "noResults": "No dresses match your search",
+    "resultsCount": "{{count}} result",
+    "resultsCount_other": "{{count}} results"
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "empty": "Nothing saved yet",
+    "emptyAction": "Browse listings"
   }
 }

@@ -6,27 +6,15 @@ import { sendOtpSms } from "../../services/unifonic";
 import { issueTokenPair, verifyRefreshToken } from "../../services/jwt";
 import { verifyGoogleIdToken } from "../../services/googleAuth";
 import { verifyAppleIdToken } from "../../services/appleAuth";
+import { toPublicUser } from "../users/users.service";
 import type { User } from "@prisma/client";
 
-function toPublicUser(user: User) {
-  return {
-    id: user.id,
-    phoneNumber: user.phoneNumber,
-    email: user.email,
-    displayName: user.displayName,
-    profilePhotoUrl: user.profilePhotoUrl,
-    cityId: user.cityId,
-    userType: user.userType,
-    isVerified: user.isVerified,
-    languagePref: user.languagePref,
-    biometricEnabled: user.biometricEnabled,
-    needsProfileSetup: !user.displayName || !user.userType,
-  };
-}
-
-function authResult(user: User) {
+// Re-fetches with the city relation loaded so the response shape matches
+// GET /users/me exactly — the queries above only need id/status, not city.
+async function authResult(user: User) {
   const { accessToken, refreshToken } = issueTokenPair(user.id);
-  return { accessToken, refreshToken, user: toPublicUser(user) };
+  const withCity = await prisma.user.findUniqueOrThrow({ where: { id: user.id }, include: { city: true } });
+  return { accessToken, refreshToken, user: toPublicUser(withCity) };
 }
 
 export async function requestOtp(phoneNumber: string): Promise<{ expiresInMinutes: number }> {

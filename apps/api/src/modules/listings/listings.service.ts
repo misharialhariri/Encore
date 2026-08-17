@@ -60,6 +60,35 @@ function toPublicListing(listing: ListingWithRelations) {
   };
 }
 
+const LISTING_CARD_INCLUDE = {
+  images: { orderBy: { position: "asc" as const }, take: 1 },
+  brand: true,
+  pickupCity: true,
+  reseller: { select: { id: true, displayName: true, isVerified: true } },
+} satisfies Prisma.ListingInclude;
+
+type ListingCardWithRelations = Prisma.ListingGetPayload<{ include: typeof LISTING_CARD_INCLUDE }>;
+
+export function toListingCard(listing: ListingCardWithRelations) {
+  return {
+    id: listing.id,
+    title: listing.title,
+    brand: listing.brand ? { nameEn: listing.brand.nameEn } : null,
+    sizeGulf: listing.sizeGulf,
+    condition: listing.condition,
+    askingPrice: listing.askingPrice.toNumber(),
+    originalPrice: listing.originalPrice.toNumber(),
+    coverImageUrl: listing.images[0]?.url ?? null,
+    city: { nameEn: listing.pickupCity.nameEn },
+    savesCount: listing.savesCount,
+    viewsCount: listing.viewsCount,
+    reseller: { id: listing.reseller.id, displayName: listing.reseller.displayName, isVerified: listing.reseller.isVerified },
+    createdAt: listing.createdAt,
+  };
+}
+
+export { LISTING_CARD_INCLUDE };
+
 type CreateListingInput = z.infer<typeof createListingSchema>;
 type UpdateListingInput = z.infer<typeof updateListingSchema>;
 
@@ -131,7 +160,25 @@ export async function getListingDetail(listingId: string, viewerUserId?: string)
     listing.viewsCount += 1;
   }
 
-  return toPublicListing(listing);
+  const [isWished, similar] = await Promise.all([
+    viewerUserId
+      ? prisma.wishlist
+          .findUnique({ where: { userId_listingId: { userId: viewerUserId, listingId } } })
+          .then((row) => Boolean(row))
+      : Promise.resolve(false),
+    prisma.listing.findMany({
+      where: {
+        id: { not: listingId },
+        status: "ACTIVE",
+        OR: [{ occasionType: listing.occasionType }, ...(listing.brandId ? [{ brandId: listing.brandId }] : [])],
+      },
+      include: LISTING_CARD_INCLUDE,
+      orderBy: { createdAt: "desc" },
+      take: 4,
+    }),
+  ]);
+
+  return { ...toPublicListing(listing), isWished, similarItems: similar.map(toListingCard) };
 }
 
 export async function updateListing(listingId: string, resellerId: string, input: UpdateListingInput) {

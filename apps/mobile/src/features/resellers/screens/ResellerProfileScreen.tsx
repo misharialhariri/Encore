@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { SellStackParamList } from "../../../navigation/types";
+import type { SharedListingRoutes } from "../../../navigation/types";
 import { ScreenContainer } from "../../../components/ScreenContainer";
 import * as resellersApi from "../../../api/resellers";
 import { colors, radius, spacing } from "../../../theme/colors";
 
-type Props = NativeStackScreenProps<SellStackParamList, "ResellerProfile">;
+type Props = NativeStackScreenProps<SharedListingRoutes, "ResellerProfile">;
 
-export function ResellerProfileScreen({ route }: Props) {
+export function ResellerProfileScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
   const [profile, setProfile] = useState<resellersApi.ResellerProfile | null>(null);
 
@@ -62,7 +62,7 @@ export function ResellerProfileScreen({ route }: Props) {
         contentContainerStyle={styles.gridContent}
         ListEmptyComponent={<Text style={styles.empty}>{t("resellerProfile.noActiveListings")}</Text>}
         renderItem={({ item }) => (
-          <View style={styles.listingCard}>
+          <Pressable style={styles.listingCard} onPress={() => navigation.push("ListingDetail", { listingId: item.id })}>
             {item.coverImageUrl ? (
               <Image source={{ uri: item.coverImageUrl }} style={styles.listingImage} />
             ) : (
@@ -72,7 +72,7 @@ export function ResellerProfileScreen({ route }: Props) {
               {item.title}
             </Text>
             <Text style={styles.listingPrice}>{item.askingPrice} SAR</Text>
-          </View>
+          </Pressable>
         )}
       />
     </ScreenContainer>

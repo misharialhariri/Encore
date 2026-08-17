@@ -26,6 +26,19 @@ export async function makeCity() {
   });
 }
 
+export async function makeCityNamed(nameEn: string, nameAr: string, regionNameEn = nameEn, regionNameAr = nameAr) {
+  const region = await prisma.region.upsert({
+    where: { nameEn: regionNameEn },
+    update: {},
+    create: { nameEn: regionNameEn, nameAr: regionNameAr },
+  });
+  return prisma.city.upsert({
+    where: { nameEn_regionId: { nameEn, regionId: region.id } },
+    update: {},
+    create: { nameEn, nameAr, regionId: region.id },
+  });
+}
+
 export async function makeBrand() {
   return prisma.brand.upsert({
     where: { nameEn: "Elie Saab" },
@@ -68,4 +81,54 @@ export async function validListingPayload(overrides: ListingFixtureOverrides = {
     acceptsOffers: true,
     imageUrls: overrides.imageUrls ?? ["https://cdn.encore.example/listing-photos/a.jpg"],
   };
+}
+
+export interface DirectListingOverrides {
+  resellerId: string;
+  title?: string;
+  brandId?: string;
+  sizeGulf?: string;
+  colors?: string[];
+  condition?: "NEW_WITH_TAGS" | "LIKE_NEW" | "GOOD" | "FAIR";
+  askingPrice?: number;
+  originalPrice?: number;
+  occasionType?: "WEDDING_GUEST" | "FORMAL" | "SEMI_FORMAL" | "COCKTAIL";
+  pickupCityId?: string;
+  status?: "PENDING_REVIEW" | "ACTIVE" | "PAUSED" | "SOLD" | "REMOVED";
+  createdAt?: Date;
+  viewsCount?: number;
+  savesCount?: number;
+}
+
+// Bypasses the HTTP layer for fixtures that need direct control over
+// fields the create endpoint doesn't expose (status, createdAt, counts) —
+// used by search/feed/sort tests where ordering and filtering are the
+// point of the test.
+export async function createListingDirect(overrides: DirectListingOverrides) {
+  const [city, brand] = await Promise.all([makeCity(), makeBrand()]);
+  return prisma.listing.create({
+    data: {
+      resellerId: overrides.resellerId,
+      title: overrides.title ?? "Test gown",
+      brandId: overrides.brandId ?? brand.id,
+      sizeGulf: overrides.sizeGulf ?? "40",
+      sizeIntl: overrides.sizeGulf ?? "40",
+      colors: overrides.colors ?? ["Blush"],
+      condition: overrides.condition ?? "LIKE_NEW",
+      originalPrice: overrides.originalPrice ?? 5000,
+      askingPrice: overrides.askingPrice ?? 1000,
+      occasionType: overrides.occasionType ?? "WEDDING_GUEST",
+      fabricType: "Silk",
+      description: "Test listing fixture",
+      pickupCityId: overrides.pickupCityId ?? city.id,
+      pickupDistrict: "Al Olaya",
+      shippingAvailable: true,
+      acceptsOffers: true,
+      status: overrides.status ?? "ACTIVE",
+      viewsCount: overrides.viewsCount ?? 0,
+      savesCount: overrides.savesCount ?? 0,
+      ...(overrides.createdAt && { createdAt: overrides.createdAt }),
+      images: { create: [{ url: "https://cdn.encore.example/listing-photos/fixture.jpg", position: 0 }] },
+    },
+  });
 }

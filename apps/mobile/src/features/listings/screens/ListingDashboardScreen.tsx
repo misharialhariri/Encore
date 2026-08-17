@@ -106,7 +106,7 @@ export function ListingDashboardScreen({ navigation }: Props) {
         }
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Pressable style={styles.cardRow} onPress={() => navigation.navigate("ListingPreview", { listingId: item.id })}>
+            <Pressable style={styles.cardRow} onPress={() => navigation.navigate("ListingDetail", { listingId: item.id })}>
               {item.images[0] ? (
                 <Image source={{ uri: item.images[0].url }} style={styles.thumbnail} />
               ) : (

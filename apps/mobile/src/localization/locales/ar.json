@@ -46,11 +46,6 @@
     "userTypeBoth": "البيع والشراء معًا",
     "finish": "إنهاء الإعداد"
   },
-  "home": {
-    "title": "الرئيسية",
-    "comingSoon": "قائمتك المخصصة قادمة في المرحلة الثالثة"
-  },
-  "search": { "title": "البحث", "comingSoon": "البحث والفلاتر قادمة في المرحلة الثالثة" },
   "sell": { "title": "بيع" },
   "chat": { "title": "الدردشة", "comingSoon": "الدردشة داخل التطبيق قادمة في المرحلة الخامسة" },
   "profile": {
@@ -123,8 +118,8 @@
     "saveChanges": "حفظ التغييرات",
     "pendingReviewNotice": "يحتاج هذا الإعلان لمراجعة سريعة قبل أن يظهر للمشترين."
   },
-  "listingPreview": {
-    "title": "معاينة",
+  "listingDetail": {
+    "title": "الإعلان",
     "sizeConversion": "خليجي {{gulf}} · أوروبي {{eu}} · أمريكي {{us}} · بريطاني {{uk}}",
     "condition": "الحالة",
     "fabric": "الخامة",
@@ -133,7 +128,27 @@
     "shippingNotAvailable": "استلام فقط",
     "acceptsOffers": "يقبل العروض",
     "views": "مشاهدات",
-    "saves": "محفوظات"
+    "saves": "محفوظات",
+    "yourListing": "هذا إعلانك",
+    "save": "حفظ",
+    "saved": "محفوظ",
+    "share": "مشاركة",
+    "report": "إبلاغ",
+    "buyNow": "شراء الآن",
+    "makeOffer": "تقديم عرض",
+    "chatWithReseller": "مراسلة البائعة",
+    "comingSoon": "هذه الميزة قادمة في مرحلة لاحقة.",
+    "similarItems": "منتجات مشابهة",
+    "reportTitle": "الإبلاغ عن هذا الإعلان",
+    "reportReasonLabel": "ما المشكلة؟",
+    "reportReasonWrongCategory": "تصنيف خاطئ",
+    "reportReasonFakePhotos": "صور غير حقيقية",
+    "reportReasonProhibitedItem": "منتج غير مسموح",
+    "reportReasonScam": "احتيال",
+    "reportReasonOther": "أخرى",
+    "reportDescriptionPlaceholder": "أضيفي أي تفاصيل تساعدنا في المراجعة (اختياري)",
+    "reportSubmit": "إرسال البلاغ",
+    "reportSuccess": "شكرًا لك — سيراجع فريقنا هذا الإعلان."
   },
   "resellerProfile": {
     "title": "الملف الشخصي للبائعة",
@@ -144,5 +159,41 @@
     "noRatingYet": "لا توجد تقييمات بعد",
     "activeListings": "الإعلانات النشطة",
     "noActiveListings": "لا توجد إعلانات نشطة حاليًا"
+  },
+  "home": {
+    "title": "الرئيسية",
+    "recentlyListed": "أُضيفت مؤخرًا",
+    "trending": "الأكثر رواجًا هذا الأسبوع",
+    "nearMe": "بالقرب منك",
+    "forYou": "مختارة لك",
+    "featuredResellers": "بائعات مميزات",
+    "seeAll": "عرض الكل",
+    "emptyFeed": "لا يوجد شيء بعد — تحققي لاحقًا."
+  },
+  "search": {
+    "title": "البحث",
+    "placeholder": "ابحثي عن فساتين، ماركات...",
+    "recentSearches": "عمليات بحث سابقة",
+    "clearRecent": "مسح",
+    "filters": "الفلاتر",
+    "sort": "الترتيب",
+    "sortNewest": "الأحدث",
+    "sortPriceAsc": "السعر: من الأقل للأعلى",
+    "sortPriceDesc": "السعر: من الأعلى للأقل",
+    "sortPopular": "الأكثر شيوعًا",
+    "sortNearest": "الأقرب",
+    "applyFilters": "عرض النتائج",
+    "clearFilters": "مسح الكل",
+    "priceRange": "نطاق السعر (ريال)",
+    "priceMin": "الأدنى",
+    "priceMax": "الأعلى",
+    "noResults": "لا توجد فساتين مطابقة لبحثك",
+    "resultsCount": "نتيجة واحدة",
+    "resultsCount_other": "{{count}} نتيجة"
+  },
+  "wishlist": {
+    "title": "المفضلة",
+    "empty": "لا يوجد شيء محفوظ بعد",
+    "emptyAction": "تصفحي الإعلانات"
   }
 }

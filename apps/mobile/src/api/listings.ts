@@ -1,4 +1,5 @@
 import { apiClient, uploadToPresignedUrl } from "./client";
+import type { ListingCard } from "./search";
 
 export type ListingCondition = "NEW_WITH_TAGS" | "LIKE_NEW" | "GOOD" | "FAIR";
 export type OccasionType = "WEDDING_GUEST" | "FORMAL" | "SEMI_FORMAL" | "COCKTAIL";
@@ -36,6 +37,10 @@ export interface Listing {
   };
   createdAt: string;
   updatedAt: string;
+  // Only present on GET /listings/:id (getListing) — omitted from
+  // create/update/mine/status responses, which don't compute them.
+  isWished?: boolean;
+  similarItems?: ListingCard[];
 }
 
 export interface CreateListingInput {

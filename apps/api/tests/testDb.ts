@@ -3,6 +3,8 @@ import { prisma } from "../src/config/prisma";
 // Order matters: children before parents to satisfy FK constraints.
 export async function resetDb() {
   await prisma.otpVerification.deleteMany();
+  await prisma.wishlist.deleteMany();
+  await prisma.report.deleteMany();
   await prisma.listing.deleteMany(); // cascades listing_images + listing_style_tags
   await prisma.styleTag.deleteMany();
   await prisma.brand.deleteMany();

@@ -186,6 +186,7 @@ model User {
   status           UserStatus   @default(ACTIVE)
   languagePref     String       @default("ar") @map("language_pref")
   biometricEnabled Boolean      @default(false) @map("biometric_enabled")
+  preferredSizes   String[]     @default([]) @map("preferred_sizes")
   createdAt        DateTime     @default(now()) @map("created_at")
   updatedAt        DateTime     @updatedAt @map("updated_at")
 

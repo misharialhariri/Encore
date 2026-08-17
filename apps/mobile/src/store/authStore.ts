@@ -12,6 +12,8 @@ export interface AuthUser {
   isVerified: boolean;
   languagePref: string;
   biometricEnabled: boolean;
+  preferredSizes: string[];
+  createdAt: string;
   needsProfileSetup: boolean;
 }
 

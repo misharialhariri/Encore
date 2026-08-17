@@ -14,6 +14,10 @@ import { styleTagsRouter } from "./modules/catalog/styleTags.routes";
 import { sizeChartRouter } from "./modules/catalog/sizeChart.routes";
 import { listingsRouter } from "./modules/listings/listings.routes";
 import { resellersRouter } from "./modules/resellers/resellers.routes";
+import { searchRouter } from "./modules/search/search.routes";
+import { wishlistRouter } from "./modules/wishlist/wishlist.routes";
+import { feedRouter } from "./modules/feed/feed.routes";
+import { reportsRouter } from "./modules/reports/reports.routes";
 
 export function createApp() {
   const app = express();
@@ -38,6 +42,10 @@ export function createApp() {
   app.use("/api/size-chart", sizeChartRouter);
   app.use("/api/listings", listingsRouter);
   app.use("/api/resellers", resellersRouter);
+  app.use("/api/search", searchRouter);
+  app.use("/api/wishlist", wishlistRouter);
+  app.use("/api/feed", feedRouter);
+  app.use("/api/reports", reportsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
