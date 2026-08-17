@@ -79,10 +79,22 @@ export function ProfileScreen({ navigation }: Props) {
         ) : null}
       </View>
 
-      <Pressable style={[styles.section, styles.row]} onPress={() => navigation.navigate("Wishlist")}>
-        <Text style={styles.rowLabel}>{t("wishlist.title")}</Text>
-        <Ionicons name="chevron-forward" size={18} color={colors.muted} />
-      </Pressable>
+      <View style={styles.section}>
+        <Pressable style={styles.row} onPress={() => navigation.navigate("Wishlist")}>
+          <Text style={styles.rowLabel}>{t("wishlist.title")}</Text>
+          <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+        </Pressable>
+        <View style={styles.divider} />
+        <Pressable style={styles.row} onPress={() => navigation.navigate("MyOffers")}>
+          <Text style={styles.rowLabel}>{t("offers.myOffersTitle")}</Text>
+          <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+        </Pressable>
+        <View style={styles.divider} />
+        <Pressable style={styles.row} onPress={() => navigation.navigate("MyOrders")}>
+          <Text style={styles.rowLabel}>{t("orders.myOrdersTitle")}</Text>
+          <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+        </Pressable>
+      </View>
 
       <View style={styles.section}>
         <View style={styles.row}>
@@ -131,7 +143,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   sectionTitle: { fontSize: 13, fontWeight: "600", color: colors.inkSoft, marginBottom: spacing.sm },
-  row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: spacing.xs },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.xs },
   rowLabel: { fontSize: 15, color: colors.ink },
   langRow: { flexDirection: "row", gap: spacing.sm },
   langButton: { flex: 1 },

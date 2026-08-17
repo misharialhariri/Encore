@@ -18,6 +18,10 @@ import { searchRouter } from "./modules/search/search.routes";
 import { wishlistRouter } from "./modules/wishlist/wishlist.routes";
 import { feedRouter } from "./modules/feed/feed.routes";
 import { reportsRouter } from "./modules/reports/reports.routes";
+import { offersRouter } from "./modules/offers/offers.routes";
+import { addressesRouter } from "./modules/addresses/addresses.routes";
+import { ordersRouter } from "./modules/orders/orders.routes";
+import { payoutsRouter } from "./modules/payouts/payouts.routes";
 
 export function createApp() {
   const app = express();
@@ -46,6 +50,10 @@ export function createApp() {
   app.use("/api/wishlist", wishlistRouter);
   app.use("/api/feed", feedRouter);
   app.use("/api/reports", reportsRouter);
+  app.use("/api/offers", offersRouter);
+  app.use("/api/addresses", addressesRouter);
+  app.use("/api/orders", ordersRouter);
+  app.use("/api/payouts", payoutsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

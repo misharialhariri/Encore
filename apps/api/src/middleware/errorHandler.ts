@@ -37,6 +37,10 @@ export const errorHandler: ErrorRequestHandler = (err, _req: Request, res: Respo
       res.status(404).json({ error: { code: "NOT_FOUND", message: "Resource not found" } });
       return;
     }
+    if (err.code === "P2002") {
+      res.status(409).json({ error: { code: "ALREADY_EXISTS", message: "This already exists or has already been used" } });
+      return;
+    }
   }
 
   console.error(err);

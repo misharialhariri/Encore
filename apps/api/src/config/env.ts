@@ -26,6 +26,9 @@ const envSchema = z.object({
 
   GOOGLE_OAUTH_CLIENT_ID: z.string().default(""),
   APPLE_CLIENT_ID: z.string().default(""),
+
+  MOYASAR_SECRET_KEY: z.string().default(""),
+  API_PUBLIC_URL: z.string().default("http://localhost:4000"),
 });
 
 const parsed = envSchema.safeParse(process.env);

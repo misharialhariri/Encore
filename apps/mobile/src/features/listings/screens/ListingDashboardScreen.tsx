@@ -90,6 +90,17 @@ export function ListingDashboardScreen({ navigation }: Props) {
           onPress={() => navigation.navigate("ResellerProfile", { resellerId: userId })}
         />
       )}
+      <View style={styles.quickLinks}>
+        <Text style={styles.quickLink} onPress={() => navigation.navigate("OffersReceived")}>
+          {t("offers.receivedOffersTitle")}
+        </Text>
+        <Text style={styles.quickLink} onPress={() => navigation.navigate("Sales")}>
+          {t("orders.salesTitle")}
+        </Text>
+        <Text style={styles.quickLink} onPress={() => navigation.navigate("Payouts")}>
+          {t("payouts.title")}
+        </Text>
+      </View>
 
       <FlatList
         data={listings}
@@ -166,6 +177,8 @@ function ActionLink({ label, onPress, destructive }: { label: string; onPress: (
 const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: spacing.sm },
   title: { fontSize: 22, fontWeight: "700", color: colors.ink },
+  quickLinks: { flexDirection: "row", gap: spacing.md, justifyContent: "center", marginTop: spacing.xs },
+  quickLink: { fontSize: 13, color: colors.accent, fontWeight: "600" },
   listContent: { paddingTop: spacing.md, paddingBottom: spacing.xl, gap: spacing.md },
   empty: { alignItems: "center", gap: spacing.md, marginTop: spacing.xxl },
   emptyText: { color: colors.inkSoft, fontSize: 15 },

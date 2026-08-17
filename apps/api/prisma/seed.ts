@@ -127,6 +127,7 @@ const PLATFORM_SETTINGS: Record<string, string> = {
   dispute_resolution_hours: "72",
   boost_price_sar: "25",
   boost_duration_days: "7",
+  flat_shipping_fee_sar: "25",
 };
 
 const BRANDS: Array<{ nameEn: string; nameAr: string }> = [

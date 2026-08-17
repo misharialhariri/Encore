@@ -15,17 +15,25 @@ export type MainTabParamList = {
   Profile: undefined;
 };
 
-// Shared across every tab's stack so a single ListingDetailScreen /
-// ResellerProfileScreen component can be pushed from Home, Search, Sell,
-// or the wishlist — each tab registers its own copy of these two routes.
+// Shared across every tab's stack so a single set of screen components
+// (listing detail, reseller profile, offer thread, checkout, order detail)
+// can be pushed from Home, Search, Sell, or Profile — each tab registers
+// its own copy of these routes pointing at the same components.
 export type SharedListingRoutes = {
   ListingDetail: { listingId: string };
   ResellerProfile: { resellerId: string };
+  OfferThread: { offerId: string };
+  Checkout: { listingId: string; offerId?: string };
+  OrderConfirmation: { orderId: string };
+  OrderDetail: { orderId: string };
 };
 
 export type SellStackParamList = SharedListingRoutes & {
   Dashboard: undefined;
   ListingForm: { listingId?: string } | undefined;
+  OffersReceived: undefined;
+  Sales: undefined;
+  Payouts: undefined;
 };
 
 export type HomeStackParamList = SharedListingRoutes & {
@@ -39,4 +47,6 @@ export type SearchStackParamList = SharedListingRoutes & {
 export type ProfileStackParamList = SharedListingRoutes & {
   ProfileHome: undefined;
   Wishlist: undefined;
+  MyOffers: undefined;
+  MyOrders: undefined;
 };

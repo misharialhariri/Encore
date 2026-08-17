@@ -7,6 +7,7 @@ import type { SharedListingRoutes } from "../../../navigation/types";
 import { ScreenContainer } from "../../../components/ScreenContainer";
 import { Button } from "../../../components/Button";
 import { ReportListingModal } from "../components/ReportListingModal";
+import { MakeOfferModal } from "../../offers/components/MakeOfferModal";
 import { useAuthStore } from "../../../store/authStore";
 import * as listingsApi from "../../../api/listings";
 import * as catalogApi from "../../../api/catalog";
@@ -25,6 +26,7 @@ export function ListingDetailScreen({ route, navigation }: Props) {
   const [isWished, setIsWished] = useState(false);
   const [wishBusy, setWishBusy] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [offerModalOpen, setOfferModalOpen] = useState(false);
 
   useEffect(() => {
     listingsApi.getListing(route.params.listingId).then((l) => {
@@ -145,18 +147,18 @@ export function ListingDetailScreen({ route, navigation }: Props) {
         </View>
       )}
 
-      {!isOwner && (
+      {!isOwner && listing.status === "ACTIVE" && (
         <View style={styles.buyRow}>
           <Button
             label={t("listingDetail.buyNow")}
-            onPress={() => comingSoon(t("listingDetail.buyNow"))}
+            onPress={() => navigation.navigate("Checkout", { listingId: listing.id })}
             style={styles.buyButton}
           />
           {listing.acceptsOffers && (
             <Button
               label={t("listingDetail.makeOffer")}
               variant="secondary"
-              onPress={() => comingSoon(t("listingDetail.makeOffer"))}
+              onPress={() => setOfferModalOpen(true)}
               style={styles.buyButton}
             />
           )}
@@ -186,6 +188,16 @@ export function ListingDetailScreen({ route, navigation }: Props) {
       )}
 
       <ReportListingModal visible={reportOpen} onClose={() => setReportOpen(false)} listingId={listing.id} />
+      <MakeOfferModal
+        visible={offerModalOpen}
+        onClose={() => setOfferModalOpen(false)}
+        listingId={listing.id}
+        askingPrice={listing.askingPrice}
+        onSent={(offerId) => {
+          setOfferModalOpen(false);
+          navigation.navigate("OfferThread", { offerId });
+        }}
+      />
     </ScreenContainer>
   );
 }
